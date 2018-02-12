@@ -26,11 +26,10 @@ rule token = parse
 
 (* Operators *)
 | '+'       { PLUS }
-| '^'        { CONCAT }
+| '^'        { CONCAT } (* is this necessary? *)
 | '-'        { MINUS }
 | '*'        { TIMES }
 | '/'        { DIVIDE }
-| '%'        { MOD }
 | '='        { ASSIGN }
 
 (* Logical Operators *)
@@ -62,7 +61,7 @@ rule token = parse
 | "string"   { STRING }
 | "[]"       { ARRAY }
 | "struct"   { STRUCT }
-| "doc"      { DOC }
+| "hashmap"  { HASHMAP }
 
 | (digits)+ as lxm { INT_LIT(int_of_string lxm) }
 | floats as lxm { FLOAT_LIT(float_of_string lxm) }
