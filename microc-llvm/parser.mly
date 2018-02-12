@@ -4,11 +4,16 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA 
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL VOID
-%token <int> LITERAL
+(* next few lines are tokens we added in scanner *)
+%token LSQUARE RSQUARE CONCAT MOD STRUCT ARRAY DOC CHAR FLOAT STRING
+%token <int> INT_LIT
+%token <float> FLOAT_LIT
+%token <string> STR_LIT
+%token <char> CHAR_LIT
 %token <string> ID
 %token EOF
 
@@ -19,8 +24,9 @@ open Ast
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
+%left CONCAT 
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MOD
 %right NOT NEG
 
 %start program
