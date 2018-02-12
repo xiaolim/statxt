@@ -43,7 +43,6 @@ rule token = parse
 | "&&"       { AND }
 | "||"       { OR }
 | "!"        { NOT }
-| "contains" { CONTAINS }
 
 (* Control *)
 | "if"       { IF }
