@@ -4,7 +4,8 @@
 
 let digits = ['0'='9']
 let chars = [' '='!' '#'='[' ']'='~']
-let string_lit = '"' ((chars)* as s) '"'
+let strings = '"' ((chars)* as str) '"'
+let floats = ((digits)+ '.' (digits)*) | ((digits)* '.' (digits)+)
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
@@ -52,8 +53,10 @@ rule token = parse
 | "char"   { CHAR }
 | "[]"     { ARRAY }
 | "struct" { STRUCT }
-| ['0'-'9']+ as lxm { NUM_LIT(int_of_string lxm) }
-| '"' ['0'-'9']+ '.' ['0'-'9']* | ['0'-'9']* '.' ['0'-'9']+ as lxm { FLOAT_LIT(float_of_string lxm) }
+
+| (digits)+ as lxm { INT_LIT(int_of_string lxm) }
+| floats as lxm { FLOAT_LIT(float_of_string lxm) }
+| strings as { STR_LIT(str) }
 |
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
