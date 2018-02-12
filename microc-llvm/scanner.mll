@@ -68,6 +68,7 @@ rule token = parse
 | (digits)+ as lxm { INT_LIT(int_of_string lxm) }
 | floats as lxm { FLOAT_LIT(float_of_string lxm) }
 | strings as { STR_LIT(str) }
+| ''' chars ''' as lxm { CHAR_LIT(String.get lxm 1) }
 
 (* Identifiers *)
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
