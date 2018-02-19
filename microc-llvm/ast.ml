@@ -1,7 +1,7 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or | Concat
+          And | Or
 
 type uop = Neg | Not
 
@@ -66,7 +66,10 @@ let string_of_uop = function
   | Not -> "!"
 
 let rec string_of_expr = function
-    Literal(l) -> string_of_int l
+    Intlit(l) -> string_of_int l
+  | Floatlit(l )-> string_of_float l
+  | Charlit(l) -> Char.escaped l
+  | Strlit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
@@ -95,6 +98,9 @@ let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Void -> "void"
+  | String -> "string"
+  | Char -> "char"
+  | Float -> "float"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
