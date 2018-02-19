@@ -3,10 +3,9 @@
 %{
 open Ast
 
-let fst (a,_,_,_) = a;
-let snd (_,b,_,_) = b;
-let trd (_,_,c,_) = c;
-let fth (_,_,_,d) = d;
+let fst (a,_,_) = a;
+let snd (_,b,_) = b;
+let trd (_,_,c) = c;
 
 %}
 
@@ -15,7 +14,8 @@ let fth (_,_,_,d) = d;
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL VOID
 /* next few lines are tokens we added in scanner */
-%token LSQUARE RSQUARE STRUCT CHAR FLOAT STRING 
+%token LSQUARE RSQUARE CHAR FLOAT STRING
+/* %token STRUCT */ 
 %token <int> INT_LIT
 %token <float> FLOAT_LIT
 %token <string> STR_LIT
@@ -45,22 +45,14 @@ program:
 
 decls:
    /* nothing */ { [], [], [], [] }
- | decls vdecl { ($2 :: fst $1), snd $1, trd $1, fth $1 }
- | decls fdecl { fst $1, ($2 :: snd $1), trd $1, fth $1 }
- | decls sdecl { fst $1, snd $1, ($2 :: trd $1), fth $1 }
-/* | decls adecl { fst $1, snd $1, trd $1, ($2 :: fth $1) } */
-
+ | decls vdecl { ($2 :: fst $1), snd $1, trd $1 }
+ | decls fdecl { fst $1, ($2 :: snd $1), trd $1 }
+/* | decls sdecl { fst $1, snd $1, ($2 :: trd $1) }*/
+/*
 sdecl:
     STRUCT ID LBRACE vdecl_list RBRACE SEMI
       { { sname = $2;
     locals = List.rev $4 } }
-/*
-adecl:
-    typ ID LSQUARE arraylength RSQUARE EQUALS LBRACE arr_list RBRACE 
-
-arraylength:
-    nothing { }
-  | 
 */
 fdecl:
     typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
