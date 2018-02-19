@@ -2,9 +2,9 @@
 
 { open Parser }
 
-let digits = ['0'='9']\
+let digits = ['0'-'9']
 let floats = ((digits)+ '.' (digits)*) | ((digits)* '.' (digits)+)
-let chars = [' '='!' '#'='[' ']'='~']
+let chars = [' '-'!' '#'-'[' ']'-'~']
 let strings = '"' ((chars)* as str) '"'
 
 rule token = parse
@@ -62,7 +62,7 @@ rule token = parse
 
 | (digits)+ as lxm { INT_LIT(int_of_string lxm) }
 | floats as lxm { FLOAT_LIT(float_of_string lxm) }
-| strings as { STR_LIT(str) }
+| strings { STR_LIT(str) }
 | ''' chars ''' as lxm { CHAR_LIT(String.get lxm 1) }
 
 (* Identifiers *)

@@ -14,7 +14,7 @@ let fth (_,_,_,d) = d;
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL VOID
-(* next few lines are tokens we added in scanner *)
+/* next few lines are tokens we added in scanner */
 %token LSQUARE RSQUARE STRUCT CHAR FLOAT STRING 
 %token <int> INT_LIT
 %token <float> FLOAT_LIT
@@ -48,20 +48,20 @@ decls:
  | decls vdecl { ($2 :: fst $1), snd $1, trd $1, fth $1 }
  | decls fdecl { fst $1, ($2 :: snd $1), trd $1, fth $1 }
  | decls sdecl { fst $1, snd $1, ($2 :: trd $1), fth $1 }
- | decls adecl { fst $1, snd $1, trd $1, ($2 :: fth $1) }
+/* | decls adecl { fst $1, snd $1, trd $1, ($2 :: fth $1) } */
 
 sdecl:
     STRUCT ID LBRACE vdecl_list RBRACE SEMI
       { { sname = $2;
     locals = List.rev $4 } }
-(*
+/*
 adecl:
     typ ID LSQUARE arraylength RSQUARE EQUALS LBRACE arr_list RBRACE 
 
 arraylength:
-    /* nothing */ { }
+    nothing { }
   | 
-*)
+*/
 fdecl:
     typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
       { { typ = $1;
@@ -82,6 +82,9 @@ typ:
     INT { Int }
   | BOOL { Bool }
   | VOID { Void }
+  | STRING { String }
+  | CHAR { Char }
+  | FLOAT { Float }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -110,7 +113,10 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
+    STR_LIT          { Strlit($1) }
+  | CHAR_LIT	     { Charlit($1) }
+  | INT_LIT	     	 { Intlit($1) }
+  | FLOAT_LIT	     { Floatlit($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }
