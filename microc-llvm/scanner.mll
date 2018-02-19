@@ -25,8 +25,7 @@ rule token = parse
 | ','        { COMMA }
 
 (* Operators *)
-| '+'       { PLUS }
-| '^'        { CONCAT } (* is this necessary? *)
+| '+'        { PLUS }
 | '-'        { MINUS }
 | '*'        { TIMES }
 | '/'        { DIVIDE }
@@ -59,9 +58,7 @@ rule token = parse
 | "false"    { FALSE }
 | "char"     { CHAR }
 | "string"   { STRING }
-| "[]"       { ARRAY }
 | "struct"   { STRUCT }
-| "hashmap"  { HASHMAP }
 
 | (digits)+ as lxm { INT_LIT(int_of_string lxm) }
 | floats as lxm { FLOAT_LIT(float_of_string lxm) }

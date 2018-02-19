@@ -35,6 +35,11 @@ type func_decl = {
     body : stmt list;
   }
 
+type struct_decl = {
+    sname : string;
+    locals : bind list;
+  }
+
 type program = bind list * func_decl list
 
 (* Pretty-printing functions *)
