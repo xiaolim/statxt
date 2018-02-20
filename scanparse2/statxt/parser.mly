@@ -4,15 +4,15 @@
 open Ast
 
 let fst (a,_,_) = a;
-let snd (_,b,_) = b;;
-let trd (_,_,c) = c;;
+let snd (_,b,_) = b;
+let trd (_,_,c) = c;
 
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
-%token STRING CHAR
+%token STRING CHAR STRUCT
 %token <char> CHARLIT
 %token <string> STRLIT
 %token <int> INTLIT
@@ -42,9 +42,9 @@ program:
 
 decls:
    /* nothing */ { ([], [], []) }
- | decls vdecl { (($2 :: fst $1), snd $1, trd $1) }
- | decls fdecl { (fst $1, ($2 :: snd $1), trd $1) }
- | decls fdecl { (fst $1, snd $1, ($2 :: trd $1)) }
+ | decls vdecl { (($2 :: fst $1), snd $1), trd $1 }
+ | decls fdecl { (fst $1, ($2 :: snd $1)), trd $1 }
+ | decls sdecl { (fst $1, snd $1, ($2 :: trd $1))}
 
 fdecl:
    typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
@@ -54,8 +54,6 @@ fdecl:
 	 locals = List.rev $7;
 	 body = List.rev $8 } }
 
-
-
 formals_opt:
     /* nothing */ { [] }
   | formal_list   { List.rev $1 }
@@ -63,6 +61,12 @@ formals_opt:
 formal_list:
     typ ID                   { [($1,$2)]     }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
+
+sdecl:
+  STRUCT ID LBRACE vdecl_list RBRACE SEMI
+    { { sname = $2;
+  members = $4 } }
+
 
 typ:
     INT   { Int   }
