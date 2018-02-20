@@ -60,6 +60,8 @@ typ:
   | BOOL  { Bool  }
   | FLOAT { Float }
   | VOID  { Void  }
+  | STRING { String }
+  | CHAR { Char }
 
 vdecl_list:
     /* nothing */    { [] }
