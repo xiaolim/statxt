@@ -2,11 +2,6 @@
 
 %{
 open Ast
-
-let fst (a,_,_) = a;
-let snd (_,b,_) = b;
-let trd (_,_,c) = c;
-
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
