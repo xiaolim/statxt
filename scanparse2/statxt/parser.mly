@@ -3,9 +3,9 @@
 %{
 open Ast
 
-let fst (a,_,_) = a;
-let snd (_,b,_) = b;
-let trd (_,_,c) = c;
+let fst (a,_,_) = a;;
+let snd (_,b,_) = b;;
+let trd (_,_,c) = c;;
 
 %}
 
