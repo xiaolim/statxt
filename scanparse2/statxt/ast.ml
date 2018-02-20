@@ -62,6 +62,7 @@ let string_of_uop = function
 let rec string_of_expr = function
     Intlit(l) -> string_of_int l
   | Fliteral(l) -> l
+  | Charlit(l) -> Char.escaped l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
