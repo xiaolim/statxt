@@ -38,6 +38,7 @@ rule token = parse
 | "float"  { FLOAT }
 | "void"   { VOID }
 | "string" { STRING }
+| "char"   { CHAR }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | digits as lxm { INTLIT(int_of_string lxm) }

@@ -7,7 +7,7 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
-%token STRING
+%token STRING CHAR
 %token <int> INTLIT
 %token <bool> BLIT
 %token <string> ID FLIT
@@ -60,6 +60,7 @@ typ:
   | FLOAT { Float }
   | VOID  { Void  }
   | STRING { String }
+  | CHAR { Char }
 
 vdecl_list:
     /* nothing */    { [] }
