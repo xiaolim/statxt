@@ -74,7 +74,7 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
-  | Arraylit(exp, i) ->let a = "array[" ^ string_of_int i ^ "] = {" ^ String.concat ", " (List.map string_of_expr exp) ^ "}" in print_endline a;a
+  | Arraylit(exp, i) -> "{" ^ String.concat ", " (List.map string_of_expr exp) ^ "}"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
@@ -103,7 +103,7 @@ let rec string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Char -> "char"
-  | Array(s, i) -> "array length " ^ string_of_int i ^ " with type " ^ string_of_typ s ^ "."
+  | Array(s, i) -> "array length " ^ string_of_int i ^ " with type " ^ string_of_typ s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
