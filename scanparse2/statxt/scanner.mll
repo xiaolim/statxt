@@ -45,7 +45,7 @@ rule token = parse
 | digits as lxm { INTLIT(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
-| chars as lxm { CHARLIT(lxm) }
+| chars as lxm { CHARLIT(String.get lxm 1) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
