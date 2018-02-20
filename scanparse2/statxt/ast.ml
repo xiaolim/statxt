@@ -114,7 +114,7 @@ let string_of_fdecl fdecl =
 
 let string_of_sdecl sdecl = 
   "struct" ^ " " ^ sdecl.sname ^ "{\n" ^ 
-  String.concat ";\n" (List.map string_of_sdecl sdecl.slocals) ^ "\n};\n"
+  String.concat ";\n" (List.map string_of_vdecl sdecl.slocals) ^ "\n};\n"
 
 let string_of_program (vars, funcs, structs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
