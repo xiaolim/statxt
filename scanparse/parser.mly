@@ -91,6 +91,8 @@ expr_opt:
 expr:
     INTLIT          { Intlit($1)            }
   | FLIT	     { Fliteral($1)           }
+  | STRLIT           { Strlit($1) }
+  | CHARLIT          { Charlit($1) }
   | BLIT             { BoolLit($1)            }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
