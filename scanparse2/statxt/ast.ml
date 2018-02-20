@@ -14,7 +14,7 @@ type expr =
   | Fliteral of string
   | Charlit of char
   | Strlit of string
-(*)  | Struct of string *)
+(*  | Struct of string *)
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
