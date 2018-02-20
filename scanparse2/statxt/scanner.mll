@@ -4,7 +4,8 @@
 
 let digit = ['0' - '9']
 let digits = digit+
-let chars = '''([' '-'!' '#'-'[' ']'-'~' ]|['0'-'9'])'''
+let chars = '''([' '-'!' '#'-'[' ']'-'~' ])'''
+let strings = '"'([' '-'!' '#'-'[' ']'-'~' ]*)'"'
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
@@ -46,6 +47,7 @@ rule token = parse
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
 | chars as lxm { CHARLIT(String.get lxm 1) }
+| strings as lxm { STRLIT(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

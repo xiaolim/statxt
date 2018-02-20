@@ -9,6 +9,7 @@ open Ast
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
 %token STRING CHAR
 %token <char> CHARLIT
+%token <string> STRLIT
 %token <int> INTLIT
 %token <bool> BLIT
 %token <string> ID FLIT
@@ -89,10 +90,11 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    INTLIT           { Intlit($1)            }
+    INTLIT           { Intlit($1)             }
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
   | CHARLIT          { Charlit ($1)           }
+  | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }

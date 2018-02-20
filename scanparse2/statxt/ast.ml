@@ -13,6 +13,7 @@ type expr =
     Intlit of int
   | Fliteral of string
   | Charlit of char
+  | Strlit of string
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
@@ -63,6 +64,7 @@ let rec string_of_expr = function
     Intlit(l) -> string_of_int l
   | Fliteral(l) -> l
   | Charlit(l) -> Char.escaped l
+  | Strlit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
