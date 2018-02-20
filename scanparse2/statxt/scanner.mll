@@ -42,6 +42,8 @@ rule token = parse
 | "string" { STRING }
 | "char"   { CHAR }
 | "struct" { STRUCT }
+| "["	   { LSQUARE }
+| "]"	   { RSQUARE }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | digits as lxm { INTLIT(int_of_string lxm) }

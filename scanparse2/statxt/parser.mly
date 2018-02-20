@@ -12,7 +12,7 @@ let trd (_,_,c) = c;;
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
-%token STRING CHAR STRUCT
+%token STRING CHAR STRUCT LSQUARE RSQUARE
 %token <char> CHARLIT
 %token <string> STRLIT
 %token <int> INTLIT
@@ -59,8 +59,8 @@ formals_opt:
   | formal_list   { List.rev $1 }
 
 formal_list:
-    typ ID                   { [($1,$2)]     }
-  | formal_list COMMA typ ID { ($3,$4) :: $1 }
+    special_type ID                   { [($1,$2)]     }
+  | formal_list COMMA special_type ID { ($3,$4) :: $1 }
 
 sdecl:
   STRUCT ID LBRACE vdecl_list RBRACE SEMI
@@ -75,12 +75,16 @@ typ:
   | STRING { String }
   | CHAR { Char }
 
+special_type:
+    typ   { $1 }
+  | special_type LSQUARE INTLIT RSQUARE { Array($1, $3)}
+
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-   typ ID SEMI { ($1, $2) }
+   special_type ID SEMI { ($1, $2) }
 
 stmt_list:
     /* nothing */  { [] }
@@ -107,6 +111,7 @@ expr:
   | CHARLIT          { Charlit ($1)           }
   | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
+  | INT ARRAY
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr TIMES  expr { Binop($1, Mult,  $3)   }
