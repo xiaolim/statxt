@@ -61,12 +61,12 @@ formals_opt:
 formal_list:
     typ ID                   { [($1,$2)]     }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
-
+(*)
 sdecl:
   STRUCT ID LBRACE vdecl_list RBRACE SEMI
     { { sname = $2;
   slocals = $4 } }
-
+*)
 
 typ:
     INT   { Int   }
@@ -75,7 +75,7 @@ typ:
   | VOID  { Void  }
   | STRING { String }
   | CHAR { Char }
-  | STRUCT ID { Struct($2) }
+  (* | STRUCT ID { Struct($2) } *)
 
 vdecl_list:
     /* nothing */    { [] }

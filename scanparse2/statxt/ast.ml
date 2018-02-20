@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Float | Void | String | Char | Struct
+type typ = Int | Bool | Float | Void | String | Char (* | Struct *)
 
 type bind = typ * string
 
@@ -14,7 +14,7 @@ type expr =
   | Fliteral of string
   | Charlit of char
   | Strlit of string
-  | Struct of string
+(*)  | Struct of string *)
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
@@ -44,7 +44,7 @@ type struct_decl = {
     slocals : bind list;
 }
 
-type program = bind list * func_decl list * struct_decl list
+type program = bind list * func_decl list (* *  struct_decl list *)
 
 (* Pretty-printing functions *)
 
@@ -71,7 +71,6 @@ let rec string_of_expr = function
   | Fliteral(l) -> l
   | Charlit(l) -> Char.escaped l
   | Strlit(l) -> l
-  | Struct(s) -> "Struct " ^ s
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
@@ -103,7 +102,7 @@ let string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Char -> "char"
-  | Struct -> "struct"
+(*  | Struct -> "struct" *)
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -114,12 +113,12 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
-
+(*
 let string_of_sdecl sdecl = 
   "struct" ^ " " ^ sdecl.sname ^ "{\n" ^ 
   String.concat ";\n" (List.map string_of_vdecl sdecl.slocals) ^ "\n};\n"
-
+*)
 let string_of_program (vars, funcs, structs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs) ^
-  String.concat "\n" (List.map string_of_sdecl structs)
+  String.concat "\n" (List.map string_of_fdecl funcs) (* ^
+  String.concat "\n" (List.map string_of_sdecl structs) *)
