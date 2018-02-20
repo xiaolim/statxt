@@ -67,7 +67,6 @@ sdecl:
     { { sname = $2;
   members = $4 } }
 
-
 typ:
     INT   { Int   }
   | BOOL  { Bool  }
