@@ -75,7 +75,7 @@ typ:
   | VOID  { Void  }
   | STRING { String }
   | CHAR { Char }
-  (* | STRUCT ID { Struct($2) } *)
+/* | STRUCT ID { Struct($2) } */
 
 vdecl_list:
     /* nothing */    { [] }
