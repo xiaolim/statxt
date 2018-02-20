@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Float | Void | String | Char
+type typ = Int | Bool | Float | Void | String | Char | Struct
 
 type bind = typ * string
 
@@ -71,6 +71,7 @@ let rec string_of_expr = function
   | Fliteral(l) -> l
   | Charlit(l) -> Char.escaped l
   | Strlit(l) -> l
+  | Struct(s) -> "Struct " ^ s
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
