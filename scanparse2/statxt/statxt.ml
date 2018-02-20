@@ -1,4 +1,3 @@
-open Ast 
 let () =
 let usage_msg = "usage: ./statxt.native [file.st]" in
 let channel = ref stdin in
