@@ -28,6 +28,11 @@ type token =
   | BOOL
   | FLOAT
   | VOID
+  | STRING
+  | CHAR
+  | STRUCT
+  | CHARLIT of (char)
+  | STRLIT of (string)
   | INTLIT of (int)
   | BLIT of (bool)
   | ID of (string)
