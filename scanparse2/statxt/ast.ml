@@ -101,7 +101,7 @@ let string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Char -> "char"
-  | Array(s, i) -> "array length " ^ string_of_int i ^ " with type " string_of_typ s ^ "."
+  | Array(s, i) -> "array length " ^ string_of_int i ^ " with type " ^ string_of_typ s ^ "."
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
