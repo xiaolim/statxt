@@ -43,6 +43,8 @@ rule token = parse
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
+| "string" { STRING }
+| "char"   { CHAR }
 | digits as lxm { INTLIT(int_of_string lxm) }
 | strings as lxm { STRLIT(lxm) }
 | chars as lxm { CHARLIT(lxm) }
