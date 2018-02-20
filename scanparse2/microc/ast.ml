@@ -10,7 +10,7 @@ type typ = Int | Bool | Float | Void
 type bind = typ * string
 
 type expr =
-    Literal of int
+    Intlit of int
   | Fliteral of string
   | BoolLit of bool
   | Id of string
@@ -59,7 +59,7 @@ let string_of_uop = function
   | Not -> "!"
 
 let rec string_of_expr = function
-    Literal(l) -> string_of_int l
+    Intlit(l) -> string_of_int l
   | Fliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
