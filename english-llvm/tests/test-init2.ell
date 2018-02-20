@@ -1,0 +1,11 @@
+int main() {
+  int a = 1;
+  int b = a+1;
+  double c = 1.5;
+  bool d = true;
+
+  print(b);
+  print_double(c);
+  printb(d);
+  return 0;
+}

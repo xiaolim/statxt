@@ -1,0 +1,7 @@
+int main() {
+string[] b;
+b = ["michelle","rabia","nivita"];
+b[6] = "emilyzzz";
+print_string(b{|6|});
+
+}
