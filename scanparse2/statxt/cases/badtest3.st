@@ -1,3 +1,5 @@
+/* can't declare struct in function */
+
 int main()
 {
 	struct point 

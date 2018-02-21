@@ -1,5 +1,5 @@
 int main()
 {
-	string words [];
+	string[4] words;
 	return 0;
 }
