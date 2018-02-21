@@ -5,6 +5,10 @@ struct stest {
 
 int main() 
 {
-	stest.i = 1;
-	stest.j = 2;
+	struct stest s1;
+
+	s1.i = 123;
+	s1.j = 456;
+
+	return 0;
 }

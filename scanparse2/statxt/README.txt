@@ -1,11 +1,6 @@
 Section 1: Compilation
-It will follow the exact same instructions as with Micro-C. 
-Our code is being run on an Ubuntu 16.04 VM
+Just run the make file:
 
-sudo apt install ocaml llvm llvm-runtime m4 opam
-opam init
-opam install llvm.3.8
-eval 'opam config env'
 make
 
 Section 2: Execute compiler
@@ -13,7 +8,7 @@ Once the make command was executed
 we can pass arguments into the statxt.native executable
 
 Example:
-./statxt.native < 5 + 5
+./statxt.native < ./cases/goodtest1.st
 
 To end, just use CTRL-D for EOF token. It will return 
 what the scanner and parser could process, or throw an 
