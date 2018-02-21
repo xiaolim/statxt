@@ -1,0 +1,12 @@
+./statxt.native < ./cases/goodtest1.st
+./statxt.native < ./cases/goodtest2.st
+./statxt.native < ./cases/goodtest3.st
+./statxt.native < ./cases/goodtest4.st
+./statxt.native < ./cases/goodtest5.st
+./statxt.native < ./cases/badtest1.st
+./statxt.native < ./cases/badtest2.st
+./statxt.native < ./cases/badtest3.st
+./statxt.native < ./cases/badtest4.st
+./statxt.native < ./cases/badtest5.st
+
+
