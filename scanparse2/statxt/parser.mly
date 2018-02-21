@@ -14,7 +14,7 @@ let trd (_,_,c) = c;;
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
-%token STRING CHAR STRUCT LSQUARE RSQUARE PIPE
+%token STRING CHAR STRUCT LSQUARE RSQUARE PIPE DOT
 %token <char> CHARLIT
 %token <int> INTLIT
 %token <bool> BLIT
@@ -133,6 +133,8 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
+  | ID DOT ID ASSIGN expr       { Sassign($1, $3, $5) }
+  | ID LSQUARE INTLIT RSQUARE ASSIGN expr { Arrassign($1, $3, $6) }
   | LPAREN expr RPAREN { $2                   }
 
 args_opt:

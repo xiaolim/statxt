@@ -20,6 +20,8 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Assign of string * expr
+  | Sassign of string * string * expr
+  | Arrassign of string * int * expr
   | Call of string * expr list
   | Noexpr
 
@@ -79,6 +81,8 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Sassign(s, ele, e) -> s ^ "." ^ ele ^ " = " ^ string_of_expr e
+  | Arrassign(a, inx, e) -> a ^ "[" ^ (string_of_int inx) ^ "] = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""

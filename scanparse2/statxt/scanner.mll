@@ -28,6 +28,7 @@ rule token = parse
 | ">"      { GT }
 | ">="     { GEQ }
 | '|'	   { PIPE }
+| '.'      { DOT }
 | "&&"     { AND }
 | "||"     { OR }
 | "!"      { NOT }
