@@ -9,15 +9,16 @@ let trd (_,_,c) = c;;
 
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
+%token LBRACE RBRACE
+%token SEMI LPAREN RPAREN COMMA
+%token PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
 %token STRING CHAR STRUCT LSQUARE RSQUARE
 %token <char> CHARLIT
-%token <string> STRLIT
 %token <int> INTLIT
 %token <bool> BLIT
-%token <string> ID FLIT
+%token <string> ID FLIT STRLIT
 %token EOF
 
 %start program
@@ -47,7 +48,7 @@ decls:
  | decls sdecl { (fst $1, snd $1, ($2 :: trd $1))}
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   special_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { typ = $1;
 	 fname = $2;
 	 formals = $4;
@@ -109,10 +110,10 @@ array_list:
   | array_list COMMA expr { $3 :: $1 }
 
 expr:
-    INTLIT           { Intlit($1)             }
-  | FLIT	           { Fliteral($1)           }
+  CHARLIT            { Charlit ($1)           }
+  | INTLIT            { Intlit($1)             }
   | BLIT             { BoolLit($1)            }
-  | CHARLIT          { Charlit ($1)           }
+  | FLIT	           { Fliteral($1)           }  
   | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
   | LBRACE array_list RBRACE { Arraylit(List.rev $2, List.length $2) }

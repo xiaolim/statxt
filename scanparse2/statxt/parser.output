@@ -7,7 +7,7 @@
    4        | decls fdecl
    5        | decls sdecl
 
-   6  fdecl : typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   6  fdecl : special_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
 
    7  formals_opt :
    8              | formal_list
@@ -49,10 +49,10 @@
   34  array_list : expr
   35             | array_list COMMA expr
 
-  36  expr : INTLIT
-  37       | FLIT
+  36  expr : CHARLIT
+  37       | INTLIT
   38       | BLIT
-  39       | CHARLIT
+  39       | FLIT
   40       | STRLIT
   41       | ID
   42       | LBRACE array_list RBRACE
@@ -132,8 +132,8 @@ state 4
 	vdecl  goto 13
 	fdecl  goto 14
 	sdecl  goto 15
-	typ  goto 16
-	special_type  goto 17
+	special_type  goto 16
+	typ  goto 17
 
 
 state 5
@@ -203,63 +203,69 @@ state 15
 	.  reduce 5
 
 
-16: shift/reduce conflict (shift 19, reduce 18) on ID
 state 16
-	fdecl : typ . ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
-	special_type : typ .  (18)
-
-	ID  shift 19
-	LSQUARE  reduce 18
-
-
-state 17
+	fdecl : special_type . ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
 	special_type : special_type . LSQUARE INTLIT RSQUARE  (19)
 	vdecl : special_type . ID SEMI  (22)
 
-	LSQUARE  shift 20
-	ID  shift 21
+	LSQUARE  shift 19
+	ID  shift 20
 	.  error
+
+
+state 17
+	special_type : typ .  (18)
+
+	.  reduce 18
 
 
 state 18
 	sdecl : STRUCT ID . LBRACE vdecl_list RBRACE SEMI  (11)
 
-	LBRACE  shift 22
+	LBRACE  shift 21
 	.  error
 
 
 state 19
-	fdecl : typ ID . LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
+	special_type : special_type LSQUARE . INTLIT RSQUARE  (19)
 
-	LPAREN  shift 23
+	INTLIT  shift 22
 	.  error
 
 
 state 20
-	special_type : special_type LSQUARE . INTLIT RSQUARE  (19)
+	fdecl : special_type ID . LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
+	vdecl : special_type ID . SEMI  (22)
 
-	INTLIT  shift 24
+	SEMI  shift 23
+	LPAREN  shift 24
 	.  error
 
 
 state 21
-	vdecl : special_type ID . SEMI  (22)
-
-	SEMI  shift 25
-	.  error
-
-
-state 22
 	sdecl : STRUCT ID LBRACE . vdecl_list RBRACE SEMI  (11)
 	vdecl_list : .  (20)
 
 	.  reduce 20
 
-	vdecl_list  goto 26
+	vdecl_list  goto 25
+
+
+state 22
+	special_type : special_type LSQUARE INTLIT . RSQUARE  (19)
+
+	RSQUARE  shift 26
+	.  error
 
 
 state 23
-	fdecl : typ ID LPAREN . formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
+	vdecl : special_type ID SEMI .  (22)
+
+	.  reduce 22
+
+
+state 24
+	fdecl : special_type ID LPAREN . formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
 	formals_opt : .  (7)
 
 	INT  shift 5
@@ -270,30 +276,17 @@ state 23
 	CHAR  shift 10
 	RPAREN  reduce 7
 
-	typ  goto 27
+	special_type  goto 27
 	formals_opt  goto 28
 	formal_list  goto 29
-	special_type  goto 30
-
-
-state 24
-	special_type : special_type LSQUARE INTLIT . RSQUARE  (19)
-
-	RSQUARE  shift 31
-	.  error
+	typ  goto 17
 
 
 state 25
-	vdecl : special_type ID SEMI .  (22)
-
-	.  reduce 22
-
-
-state 26
 	sdecl : STRUCT ID LBRACE vdecl_list . RBRACE SEMI  (11)
 	vdecl_list : vdecl_list . vdecl  (21)
 
-	RBRACE  shift 32
+	RBRACE  shift 30
 	INT  shift 5
 	BOOL  shift 6
 	FLOAT  shift 7
@@ -302,19 +295,28 @@ state 26
 	CHAR  shift 10
 	.  error
 
-	vdecl  goto 33
-	typ  goto 27
-	special_type  goto 17
+	vdecl  goto 31
+	special_type  goto 32
+	typ  goto 17
+
+
+state 26
+	special_type : special_type LSQUARE INTLIT RSQUARE .  (19)
+
+	.  reduce 19
 
 
 state 27
-	special_type : typ .  (18)
+	formal_list : special_type . ID  (9)
+	special_type : special_type . LSQUARE INTLIT RSQUARE  (19)
 
-	.  reduce 18
+	LSQUARE  shift 19
+	ID  shift 33
+	.  error
 
 
 state 28
-	fdecl : typ ID LPAREN formals_opt . RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
+	fdecl : special_type ID LPAREN formals_opt . RPAREN LBRACE vdecl_list stmt_list RBRACE  (6)
 
 	RPAREN  shift 34
 	.  error
@@ -329,35 +331,35 @@ state 29
 
 
 state 30
-	formal_list : special_type . ID  (9)
-	special_type : special_type . LSQUARE INTLIT RSQUARE  (19)
+	sdecl : STRUCT ID LBRACE vdecl_list RBRACE . SEMI  (11)
 
-	LSQUARE  shift 20
-	ID  shift 36
+	SEMI  shift 36
 	.  error
 
 
 state 31
-	special_type : special_type LSQUARE INTLIT RSQUARE .  (19)
-
-	.  reduce 19
-
-
-state 32
-	sdecl : STRUCT ID LBRACE vdecl_list RBRACE . SEMI  (11)
-
-	SEMI  shift 37
-	.  error
-
-
-state 33
 	vdecl_list : vdecl_list vdecl .  (21)
 
 	.  reduce 21
 
 
+state 32
+	special_type : special_type . LSQUARE INTLIT RSQUARE  (19)
+	vdecl : special_type . ID SEMI  (22)
+
+	LSQUARE  shift 19
+	ID  shift 37
+	.  error
+
+
+state 33
+	formal_list : special_type ID .  (9)
+
+	.  reduce 9
+
+
 state 34
-	fdecl : typ ID LPAREN formals_opt RPAREN . LBRACE vdecl_list stmt_list RBRACE  (6)
+	fdecl : special_type ID LPAREN formals_opt RPAREN . LBRACE vdecl_list stmt_list RBRACE  (6)
 
 	LBRACE  shift 38
 	.  error
@@ -374,24 +376,25 @@ state 35
 	CHAR  shift 10
 	.  error
 
-	typ  goto 27
 	special_type  goto 39
+	typ  goto 17
 
 
 state 36
-	formal_list : special_type ID .  (9)
-
-	.  reduce 9
-
-
-state 37
 	sdecl : STRUCT ID LBRACE vdecl_list RBRACE SEMI .  (11)
 
 	.  reduce 11
 
 
+state 37
+	vdecl : special_type ID . SEMI  (22)
+
+	SEMI  shift 23
+	.  error
+
+
 state 38
-	fdecl : typ ID LPAREN formals_opt RPAREN LBRACE . vdecl_list stmt_list RBRACE  (6)
+	fdecl : special_type ID LPAREN formals_opt RPAREN LBRACE . vdecl_list stmt_list RBRACE  (6)
 	vdecl_list : .  (20)
 
 	.  reduce 20
@@ -403,13 +406,13 @@ state 39
 	formal_list : formal_list COMMA special_type . ID  (10)
 	special_type : special_type . LSQUARE INTLIT RSQUARE  (19)
 
-	LSQUARE  shift 20
+	LSQUARE  shift 19
 	ID  shift 41
 	.  error
 
 
 state 40
-	fdecl : typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list . stmt_list RBRACE  (6)
+	fdecl : special_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list . stmt_list RBRACE  (6)
 	vdecl_list : vdecl_list . vdecl  (21)
 	stmt_list : .  (23)
 
@@ -429,16 +432,16 @@ state 40
 	FOR  reduce 23
 	WHILE  reduce 23
 	CHARLIT  reduce 23
-	STRLIT  reduce 23
 	INTLIT  reduce 23
 	BLIT  reduce 23
 	ID  reduce 23
 	FLIT  reduce 23
+	STRLIT  reduce 23
 
-	vdecl  goto 33
-	typ  goto 27
+	vdecl  goto 31
+	special_type  goto 32
 	stmt_list  goto 42
-	special_type  goto 17
+	typ  goto 17
 
 
 state 41
@@ -448,7 +451,7 @@ state 41
 
 
 state 42
-	fdecl : typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list . RBRACE  (6)
+	fdecl : special_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list . RBRACE  (6)
 	stmt_list : stmt_list . stmt  (24)
 
 	LPAREN  shift 43
@@ -461,11 +464,11 @@ state 42
 	FOR  shift 50
 	WHILE  shift 51
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	stmt  goto 58
@@ -480,11 +483,11 @@ state 43
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 61
@@ -495,11 +498,11 @@ state 43
 44: shift/reduce conflict (shift 46, reduce 23) on MINUS
 44: shift/reduce conflict (shift 47, reduce 23) on NOT
 44: shift/reduce conflict (shift 52, reduce 23) on CHARLIT
-44: shift/reduce conflict (shift 53, reduce 23) on STRLIT
-44: shift/reduce conflict (shift 54, reduce 23) on INTLIT
-44: shift/reduce conflict (shift 55, reduce 23) on BLIT
-44: shift/reduce conflict (shift 56, reduce 23) on ID
-44: shift/reduce conflict (shift 57, reduce 23) on FLIT
+44: shift/reduce conflict (shift 53, reduce 23) on INTLIT
+44: shift/reduce conflict (shift 54, reduce 23) on BLIT
+44: shift/reduce conflict (shift 55, reduce 23) on ID
+44: shift/reduce conflict (shift 56, reduce 23) on FLIT
+44: shift/reduce conflict (shift 57, reduce 23) on STRLIT
 state 44
 	stmt : LBRACE . stmt_list RBRACE  (27)
 	expr : LBRACE . array_list RBRACE  (42)
@@ -510,11 +513,11 @@ state 44
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	RBRACE  reduce 23
 	RETURN  reduce 23
 	IF  reduce 23
@@ -527,7 +530,7 @@ state 44
 
 
 state 45
-	fdecl : typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE .  (6)
+	fdecl : special_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE .  (6)
 
 	.  reduce 6
 
@@ -540,11 +543,11 @@ state 46
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 65
@@ -558,11 +561,11 @@ state 47
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 66
@@ -577,11 +580,11 @@ state 48
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	SEMI  reduce 32
 
 	expr  goto 67
@@ -611,30 +614,24 @@ state 51
 
 
 state 52
-	expr : CHARLIT .  (39)
-
-	.  reduce 39
-
-
-state 53
-	expr : STRLIT .  (40)
-
-	.  reduce 40
-
-
-state 54
-	expr : INTLIT .  (36)
+	expr : CHARLIT .  (36)
 
 	.  reduce 36
 
 
-state 55
+state 53
+	expr : INTLIT .  (37)
+
+	.  reduce 37
+
+
+state 54
 	expr : BLIT .  (38)
 
 	.  reduce 38
 
 
-state 56
+state 55
 	expr : ID .  (41)
 	expr : ID . ASSIGN expr  (57)
 	expr : ID . LPAREN args_opt RPAREN  (58)
@@ -659,10 +656,16 @@ state 56
 	OR  reduce 41
 
 
-state 57
-	expr : FLIT .  (37)
+state 56
+	expr : FLIT .  (39)
 
-	.  reduce 37
+	.  reduce 39
+
+
+state 57
+	expr : STRLIT .  (40)
+
+	.  reduce 40
 
 
 state 58
@@ -710,11 +713,11 @@ state 60
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 63
@@ -766,11 +769,11 @@ state 62
 	FOR  shift 50
 	WHILE  shift 51
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	stmt  goto 58
@@ -900,11 +903,11 @@ state 69
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 92
@@ -919,11 +922,11 @@ state 70
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	SEMI  reduce 32
 
 	expr  goto 67
@@ -938,11 +941,11 @@ state 71
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 94
@@ -957,11 +960,11 @@ state 72
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	RPAREN  reduce 60
 
 	expr  goto 95
@@ -977,11 +980,11 @@ state 73
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 98
@@ -1001,11 +1004,11 @@ state 75
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 99
@@ -1019,11 +1022,11 @@ state 76
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 100
@@ -1037,11 +1040,11 @@ state 77
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 101
@@ -1055,11 +1058,11 @@ state 78
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 102
@@ -1073,11 +1076,11 @@ state 79
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 103
@@ -1091,11 +1094,11 @@ state 80
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 104
@@ -1109,11 +1112,11 @@ state 81
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 105
@@ -1127,11 +1130,11 @@ state 82
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 106
@@ -1145,11 +1148,11 @@ state 83
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 107
@@ -1163,11 +1166,11 @@ state 84
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 108
@@ -1181,11 +1184,11 @@ state 85
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 109
@@ -1199,11 +1202,11 @@ state 86
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 110
@@ -1235,11 +1238,11 @@ state 90
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 111
@@ -1810,11 +1813,11 @@ state 112
 	FOR  shift 50
 	WHILE  shift 51
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	stmt  goto 117
@@ -1829,11 +1832,11 @@ state 113
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 118
@@ -1851,11 +1854,11 @@ state 114
 	FOR  shift 50
 	WHILE  shift 51
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	stmt  goto 119
@@ -1876,11 +1879,11 @@ state 116
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	expr  goto 120
@@ -1901,11 +1904,11 @@ state 117
 	FOR  reduce 28
 	WHILE  reduce 28
 	CHARLIT  reduce 28
-	STRLIT  reduce 28
 	INTLIT  reduce 28
 	BLIT  reduce 28
 	ID  reduce 28
 	FLIT  reduce 28
+	STRLIT  reduce 28
 
 
 state 118
@@ -1988,11 +1991,11 @@ state 121
 	FOR  shift 50
 	WHILE  shift 51
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	stmt  goto 123
@@ -2008,11 +2011,11 @@ state 122
 	MINUS  shift 46
 	NOT  shift 47
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	RPAREN  reduce 32
 
 	expr  goto 67
@@ -2044,11 +2047,11 @@ state 125
 	FOR  shift 50
 	WHILE  shift 51
 	CHARLIT  shift 52
-	STRLIT  shift 53
-	INTLIT  shift 54
-	BLIT  shift 55
-	ID  shift 56
-	FLIT  shift 57
+	INTLIT  shift 53
+	BLIT  shift 54
+	ID  shift 55
+	FLIT  shift 56
+	STRLIT  shift 57
 	.  error
 
 	stmt  goto 126
@@ -2061,7 +2064,6 @@ state 126
 	.  reduce 30
 
 
-State 16 contains 1 shift/reduce conflict.
 State 44 contains 10 shift/reduce conflicts.
 
 
