@@ -14,7 +14,7 @@ let trd (_,_,c) = c;;
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
-%token STRING CHAR STRUCT LSQUARE RSQUARE
+%token STRING CHAR STRUCT LSQUARE RSQUARE PIPE
 %token <char> CHARLIT
 %token <int> INTLIT
 %token <bool> BLIT
@@ -116,7 +116,7 @@ expr:
   | FLIT	           { Fliteral($1)           }  
   | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
-  | LBRACE array_list RBRACE { Arraylit(List.rev $2, List.length $2) }
+  | PIPE array_list PIPE { Arraylit(List.rev $2, List.length $2) }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr TIMES  expr { Binop($1, Mult,  $3)   }
