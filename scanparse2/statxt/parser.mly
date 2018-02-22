@@ -81,7 +81,6 @@ typ:
 special_type:
     typ   { $1 }
   | special_type LSQUARE INTLIT RSQUARE { Array($1, $3) }
-  | STRUCT special_type {$2}
 
 vdecl_list:
     /* nothing */    { [] }
