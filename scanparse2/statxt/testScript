@@ -82,3 +82,10 @@ else
     printf "\nFAIL\n"
 fi
 printf "*****************************************\n"
+printf "*****************************************\n"
+if ./statxt.native < ./cases/mixedstmtdecl.st; then
+    printf "\nPASS\n"
+else
+    printf "\nFAIL\n"
+fi
+printf "*****************************************\n"

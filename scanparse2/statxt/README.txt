@@ -24,6 +24,4 @@ directory included in the submission.
 
 Section 4: Additional Syntax
 Currently, there is no further syntax we want to add.
-However, we still have not been able to assign
-values to struct elements. Also, we have no yet implemented arrays
-beyond just declaring them.
+

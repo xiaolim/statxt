@@ -26,7 +26,7 @@ type expr =
   | Noexpr
 
 type stmt =
-    Block of stmt list
+    Block of bind list * stmt list
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt
@@ -37,7 +37,7 @@ type func_decl = {
     typ : typ;
     fname : string;
     formals : bind list;
-    locals : bind list;
+    locals: bind list;
     body : stmt list;
   }
 
@@ -88,11 +88,11 @@ let rec string_of_expr = function
   | Noexpr -> ""
 
 let rec string_of_stmt = function
-    Block(stmts) ->
+    Block(_, stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n";
   | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
-  | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
+  | If(e, s, Block([], [])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
   | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For(e1, e2, e3, s) ->
@@ -121,7 +121,7 @@ let string_of_fdecl fdecl =
 
 let string_of_sdecl sdecl =
   "struct" ^ " " ^ sdecl.sname ^ "{\n" ^ 
-  String.concat "" (List.map string_of_vdecl sdecl.members) ^ "\n};\n"
+  String.concat "" (List.map string_of_vdecl sdecl.members) ^ "};\n"
 
 let string_of_program (vars, funcs, structs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^

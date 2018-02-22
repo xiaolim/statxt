@@ -43,17 +43,17 @@ program:
 
 decls:
    /* nothing */ { ([], [], []) }
- | decls vdecl { (($2 :: fst $1), snd $1, trd $1) }
- | decls fdecl { (fst $1, ($2 :: snd $1), trd $1) }
- | decls sdecl { (fst $1, snd $1, ($2 :: trd $1))}
+ | decls vdecl   { (($2 :: fst $1), snd $1, trd $1) }
+ | decls fdecl   { (fst $1, ($2 :: snd $1), trd $1) }
+ | decls sdecl   { (fst $1, snd $1, ($2 :: trd $1)) }
 
 fdecl:
-   special_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   special_type ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = $1;
-	 fname = $2;
-	 formals = $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
+     fname   = $2;
+     formals = $4;
+     locals  = List.rev (fst $7);
+     body    = List.rev (snd $7) } }
 
 formals_opt:
     /* nothing */ { [] }
@@ -69,12 +69,12 @@ sdecl:
   members = $4 } }
 
 typ:
-    INT   { Int   }
-  | BOOL  { Bool  }
-  | FLOAT { Float }
-  | VOID  { Void  }
+    INT    { Int    }
+  | BOOL   { Bool   }
+  | FLOAT  { Float  }
+  | VOID   { Void   }
   | STRING { String }
-  | CHAR { Char }
+  | CHAR   { Char   }
 
 special_type:
     typ   { $1 }
@@ -88,14 +88,15 @@ vdecl:
    special_type ID SEMI { ($1, $2) }
 
 stmt_list:
-    /* nothing */  { [] }
-  | stmt_list stmt { $2 :: $1 }
+    /* nothing */   { [], [], [] }
+  | stmt_list stmt  { (fst $1), ($2 :: (snd $1)), [] }
+  | stmt_list vdecl { ($2 :: (fst $1)), snd $1, []   }
 
 stmt:
     expr SEMI                               { Expr $1               }
   | RETURN expr_opt SEMI                    { Return $2             }
-  | LBRACE stmt_list RBRACE                 { Block(List.rev $2)    }
-  | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+  | LBRACE stmt_list RBRACE                 { Block(List.rev (fst $2), List.rev (snd $2)) }
+  | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([], [])) }
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7)        }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
                                             { For($3, $5, $7, $9)   }
@@ -111,9 +112,9 @@ array_list:
 
 expr:
   CHARLIT            { Charlit ($1)           }
-  | INTLIT            { Intlit($1)             }
+  | INTLIT           { Intlit($1)             }
   | BLIT             { BoolLit($1)            }
-  | FLIT	           { Fliteral($1)           }  
+  | FLIT             { Fliteral($1)           }  
   | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
   | PIPE array_list PIPE { Arraylit(List.rev $2, List.length $2) }
@@ -133,7 +134,7 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
-  | ID DOT ID ASSIGN expr       { Sassign($1, $3, $5) }
+  | ID DOT ID ASSIGN expr     { Sassign($1, $3, $5) }
   | ID LSQUARE INTLIT RSQUARE ASSIGN expr { Arrassign($1, $3, $6) }
   | LPAREN expr RPAREN { $2                   }
 
@@ -142,5 +143,5 @@ args_opt:
   | args_list  { List.rev $1 }
 
 args_list:
-    expr                    { [$1] }
+    expr                 { [$1]     }
   | args_list COMMA expr { $3 :: $1 }
