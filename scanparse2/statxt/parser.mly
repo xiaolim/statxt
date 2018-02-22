@@ -60,8 +60,8 @@ formals_opt:
   | formal_list   { List.rev $1 }
 
 formal_list:
-    special_type ID                   { [($1,$2)]     }
-  | formal_list COMMA special_type ID { ($3,$4) :: $1 }
+    special_type ID                   { [($1, $2)]     }
+  | formal_list COMMA special_type ID { ($3, $4) :: $1 }
 
 sdecl:
   STRUCT ID LBRACE vdecl_list RBRACE SEMI
@@ -75,22 +75,25 @@ typ:
   | VOID   { Void   }
   | STRING { String }
   | CHAR   { Char   }
+  | STRUCT ID { Struct ($2) }
+
 
 special_type:
     typ   { $1 }
   | special_type LSQUARE INTLIT RSQUARE { Array($1, $3) }
+  | STRUCT special_type {$2}
 
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-   special_type ID SEMI { ($1, $2) }
+    special_type ID SEMI { ($1, $2) }
 
 stmt_list:
     /* nothing */   { [], [], [] }
-  | stmt_list stmt  { (fst $1), ($2 :: (snd $1)), [] }
-  | stmt_list vdecl { ($2 :: (fst $1)), snd $1, []   }
+  | stmt_list stmt  { fst $1, ($2 :: (snd $1)), [] }
+  | stmt_list vdecl { ($2 :: (fst $1)), snd $1, [] }
 
 stmt:
     expr SEMI                               { Expr $1               }

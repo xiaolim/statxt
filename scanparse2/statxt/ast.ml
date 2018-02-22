@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Float | Void | String | Char | Array of typ * int (*int is array size*)
+type typ = Int | Bool | Float | Void | String | Char | Struct of string | Array of typ * int (*int is array size*)
 
 type bind = typ * string
 
@@ -107,6 +107,7 @@ let rec string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Char -> "char"
+  | Struct(id) -> "struct " ^ id
   | Array(s, i) -> "array length " ^ string_of_int i ^ " with type " ^ string_of_typ s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"

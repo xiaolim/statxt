@@ -25,3 +25,9 @@ directory included in the submission.
 Section 4: Additional Syntax
 Currently, there is no further syntax we want to add.
 
+What we did add:
+string, char
+structs, arrays, ability to mix variable declarations and assignments in functions
+accessing elements in structs, accessing elements in arrays, assigning all elements of array at once
+
+

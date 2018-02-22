@@ -89,3 +89,10 @@ else
     printf "\nFAIL\n"
 fi
 printf "*****************************************\n"
+printf "*****************************************\n"
+if ./statxt.native < ./cases/structinstance.st; then
+    printf "\nPASS\n"
+else
+    printf "\nFAIL\n"
+fi
+printf "*****************************************\n"
