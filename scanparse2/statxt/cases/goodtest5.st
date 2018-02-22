@@ -1,6 +1,9 @@
 int main()
 {
 	string[4] words;
-	words = |1,2,3,4|;
+	words = |"the", "quick", "brown", "fox"|;
+
+	words[1] = "slow";
+
 	return 0;
 }

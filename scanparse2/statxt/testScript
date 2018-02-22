@@ -1,98 +1,17 @@
-printf "*****************************************\n"
-if ./statxt.native < ./cases/goodtest1.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/goodtest2.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/goodtest3.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/goodtest4.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/goodtest5.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/badtest1.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/badtest2.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/badtest3.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/badtest4.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/badtest5.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/structassigntest.st; then
-    printf "\nPASS\n\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/arrayinxassigntest.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/mixedstmtdecl.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
-printf "*****************************************\n"
-if ./statxt.native < ./cases/structinstance.st; then
-    printf "\nPASS\n"
-else
-    printf "\nFAIL\n"
-fi
-printf "*****************************************\n"
+#!/bin/bash
+
+count=0
+
+for file in cases/*
+do
+    count=$((count+1))
+    printf "***************************************\n"
+    if ./statxt.native < "$file"; then
+    	echo -------------------
+        echo "Test" $count ": PASSED  | on " $file
+    else
+    	echo -------------------
+        echo "Test" $count ": FAILED  | on " $file
+    fi
+    printf "***************************************\n\n\n"
+done
