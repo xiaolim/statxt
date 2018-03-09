@@ -1,0 +1,5 @@
+scanparse2/statxt/_build/
+
+*.native
+
+
