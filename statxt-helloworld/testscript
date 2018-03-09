@@ -1,0 +1,17 @@
+#!/bin/bash
+
+count=0
+
+for file in cases/*
+do
+    count=$((count+1))
+    printf "***************************************\n"
+    if ./statxt.native < "$file"; then
+    	echo -------------------
+        echo "Test" $count ": PASSED  | on " $file
+    else
+    	echo -------------------
+        echo "Test" $count ": FAILED  | on " $file
+    fi
+    printf "***************************************\n\n\n"
+done
