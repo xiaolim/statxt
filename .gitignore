@@ -1,5 +1,4 @@
 scanparse2/statxt/_build/
-
+newmicroc/microc-sast/_build/
 *.native
-
-
+*.o
