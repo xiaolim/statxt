@@ -14,8 +14,9 @@ and sx =
   | SCall of string * sexpr list
   | SNoexpr
 
+
 type sstmt =
-    SBlock of sstmt list
+    SBlock of bind list * sstmt list
   | SExpr of sexpr
   | SReturn of sexpr
   | SIf of sexpr * sstmt * sstmt
@@ -30,7 +31,13 @@ type sfunc_decl = {
     sbody : sstmt list;
   }
 
-type sprogram = bind list * sfunc_decl list
+
+type sstruct_decl = {
+  ssname : string;
+  smembers : bind list;
+}
+
+type sprogram = bind list * sfunc_decl list * sstruct_decl list
 
 (* Pretty-printing functions *)
 
@@ -51,11 +58,11 @@ let rec string_of_sexpr (t, e) =
 				  ) ^ ")"				     
 
 let rec string_of_sstmt = function
-    SBlock(stmts) ->
+    SBlock(_, stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_sstmt stmts) ^ "}\n"
   | SExpr(expr) -> string_of_sexpr expr ^ ";\n";
   | SReturn(expr) -> "return " ^ string_of_sexpr expr ^ ";\n";
-  | SIf(e, s, SBlock([])) ->
+  | SIf(e, s, SBlock([], [])) ->
       "if (" ^ string_of_sexpr e ^ ")\n" ^ string_of_sstmt s
   | SIf(e, s1, s2) ->  "if (" ^ string_of_sexpr e ^ ")\n" ^
       string_of_sstmt s1 ^ "else\n" ^ string_of_sstmt s2
@@ -72,6 +79,11 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (vars, funcs) =
+(*let string_of_ssdecl sdecl =
+  "struct" ^ " " ^ ssdecl.sname ^ "{\n" ^ 
+  String.concat "" (List.map string_of_vdecl ssdecl.members) ^ "};\n"*)
+
+let string_of_sprogram (vars, funcs, structs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs)
+ (* String.concat "\n" (List.map string_of_ssdecl structs) *)

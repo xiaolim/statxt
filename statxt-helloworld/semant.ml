@@ -10,7 +10,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (globals, functions) =
+let check (globals, functions, structs) =
 
   (* Check if a certain kind of binding has void type or is a duplicate
      of another, previously checked binding *)
@@ -97,7 +97,8 @@ let check (globals, functions) =
 
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
-        Literal  l -> (Int, SLiteral l)
+        Intlit  l -> (Int, SLiteral l)
+      | _ -> (Void, SNoexpr)  (* fix this *)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
       | Noexpr     -> (Void, SNoexpr)
@@ -172,22 +173,22 @@ let check (globals, functions) =
 	    
 	    (* A block is correct if each statement is correct and nothing
 	       follows any Return statement.  Nested blocks are flattened. *)
-      | Block sl -> 
+      | Block (bl, sl) -> 
           let rec check_stmt_list = function
               [Return _ as s] -> [check_stmt s]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | Block sl :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
+            | Block (bl, sl) :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> []
-          in SBlock(check_stmt_list sl)
+          in SBlock(bl, (check_stmt_list sl))
 
     in (* body of check_function *)
     { styp = func.typ;
       sfname = func.fname;
       sformals = formals';
       slocals  = locals';
-      sbody = match check_stmt (Block func.body) with
-	SBlock(sl) -> sl
+      sbody = match check_stmt (Block ([], func.body)) with
+	SBlock([], sl) -> sl
       | _ -> let err = "internal error: block didn't become a block?"
       in raise (Failure err)
     }
