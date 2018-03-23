@@ -5,7 +5,7 @@
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
 
 .PHONY : all
-all : statxt.native
+all : statxt.native printbig.o
 
 .PHONY : statxt.native
 statxt.native :
@@ -19,6 +19,7 @@ statxt.native :
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff statxt scanner.ml parser.ml parser.mli
+	rm -rf printbig
 	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
@@ -32,7 +33,7 @@ scanner.ml : scanner.mll
 	ocamllex scanner.mll
 
 parser.ml parser.mli : parser.mly
-	ocamlyacc -v parser.mly
+	ocamlyacc parser.mly
 
 %.cmo : %.ml
 	ocamlc -c $<
@@ -65,28 +66,28 @@ parser.cmi : ast.cmo
 
 # Building the tarball
 
-#TESTS = \
-#  add1 arith1 arith2 arith3 fib float1 float2 float3 for1 for2 func1 \
-#  func2 func3 func4 func5 func6 func7 func8 func9 gcd2 gcd global1 \
-#  global2 global3 hello if1 if2 if3 if4 if5 if6 local1 local2 ops1 \
-#  ops2 printbig var1 var2 while1 while2
-#
-#FAILS = \
-#  assign1 assign2 assign3 dead1 dead2 expr1 expr2 expr3 float1 float2 \
-#  for1 for2 for3 for4 for5 func1 func2 func3 func4 func5 func6 func7 \
-#  func8 func9 global1 global2 if1 if2 if3 nomain printbig printb print \
-#  return1 return2 while1 while2
-#  
-#TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
-#	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
-#
-#TARFILES = README \
-#        ast.ml sast.ml codegen.ml Makefile statxt.ml parser.mly \
-#        scanner.mll semant.ml testall.sh printbig.c \
-#	$(TESTFILES:%=tests/%)
-#
-#tar : statxt-sast.tar.gz
-#
-#statxt-sast.tar.gz : $(TARFILES)
-#	cd .. && tar czf statxt-sast/statxt-sast.tar.gz \
-#		$(TARFILES:%=statxt-sast/%)
+TESTS = \
+  add1 arith1 arith2 arith3 fib float1 float2 float3 for1 for2 func1 \
+  func2 func3 func4 func5 func6 func7 func8 func9 gcd2 gcd global1 \
+  global2 global3 hello if1 if2 if3 if4 if5 if6 local1 local2 ops1 \
+  ops2 printbig var1 var2 while1 while2
+
+FAILS = \
+  assign1 assign2 assign3 dead1 dead2 expr1 expr2 expr3 float1 float2 \
+  for1 for2 for3 for4 for5 func1 func2 func3 func4 func5 func6 func7 \
+  func8 func9 global1 global2 if1 if2 if3 nomain printbig printb print \
+  return1 return2 while1 while2
+  
+TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
+	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
+
+TARFILES = README \
+        ast.ml sast.ml codegen.ml Makefile statxt.ml parser.mly \
+        scanner.mll semant.ml testall.sh printbig.c \
+	$(TESTFILES:%=tests/%)
+
+tar : statxt-sast.tar.gz
+
+statxt-sast.tar.gz : $(TARFILES)
+	cd .. && tar czf statxt-sast/statxt-sast.tar.gz \
+		$(TARFILES:%=statxt-sast/%)

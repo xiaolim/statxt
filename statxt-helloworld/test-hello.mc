@@ -1,6 +1,11 @@
 int main()
 {
-  printstr("hello world");
+  string s;
+  
+  s = "hello world";
+
+  printstr(s);
+
 
   return 0;
 }
