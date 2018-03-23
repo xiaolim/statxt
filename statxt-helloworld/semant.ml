@@ -44,6 +44,7 @@ let check (globals, functions, structs) =
       locals = []; body = [] } map
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
+			                         ("printstr", String);
 			                         ("printf", Float);
 			                         ("printbig", Int) ]
   in
@@ -98,9 +99,9 @@ let check (globals, functions, structs) =
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         Intlit  l -> (Int, SIntlit l)
-      | _ -> (Void, SNoexpr)  (* fix this *)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
+      | Strlit l   -> (String, SStrlit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 
@@ -192,4 +193,4 @@ let check (globals, functions, structs) =
       | _ -> let err = "internal error: block didn't become a block?"
       in raise (Failure err)
     }
-  in (globals', List.map check_function functions, [])
+  in (globals', List.map check_function functions, structs)
