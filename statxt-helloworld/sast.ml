@@ -4,8 +4,10 @@ open Ast
 
 type sexpr = typ * sx
 and sx =
-    SLiteral of int
+    SIntlit of int
   | SFliteral of string
+  | SCharlit of char
+  | SStrlit of string
   | SBoolLit of bool
   | SId of string
   | SBinop of sexpr * op * sexpr
@@ -43,7 +45,10 @@ type sprogram = bind list * sfunc_decl list * sstruct_decl list
 
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
-    SLiteral(l) -> string_of_int l
+    SIntlit(l) -> string_of_int l
+  | SFliteral(l) -> l
+  | SCharlit(l) -> Char.escaped l
+  | SStrlit(l) -> l
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l

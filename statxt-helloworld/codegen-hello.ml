@@ -21,7 +21,7 @@ module StringMap = Map.Make(String)
 
 (* Code Generation from the SAST. Returns an LLVM module if successful,
    throws an exception if something is wrong. *)
-let translate (_, functions, _) =
+let translate (_, functions) =
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
@@ -44,7 +44,7 @@ let translate (_, functions, _) =
   let printf_func : L.llvalue = 
      L.declare_function "printf" printf_t the_module in 
 
-  let to_imp str asdf = raise (Failure ("Not yet implemented: " ^ str ^ asdf)) in
+  let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
   (* Generate the LLVM instructions to define a MicroC function *)
   let build_function fdecl =
@@ -62,26 +62,26 @@ let translate (_, functions, _) =
 
     let rec expr builder ((_, e) : sexpr) = match e with
         (* 42  ----->  i32 42 *)
-	SIntlit i -> L.const_int i32_t i  
+	SLiteral i -> L.const_int i32_t i  
         (* print(42)   ----->  %printf = call i32 (i8*, ...) @printf(<stuff>, i32 42) *)
       | SCall ("print", [e]) ->  
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder 
       (* Throw an exception for any other expressions *)
-      | _ -> to_imp (string_of_sexpr (A.Int,e)) "1"  
+      | _ -> to_imp (string_of_sexpr (A.Int,e))  
     in
 
     let rec stmt builder = function
         SExpr e -> let _ = expr builder e in builder 
-      | SBlock (_, sl) -> List.fold_left stmt builder sl
+      | SBlock sl -> List.fold_left stmt builder sl
       (* return 0;  ----->  ret i32 0 *)
       | SReturn e -> let _ = match fdecl.styp with
                               A.Int -> L.build_ret (expr builder e) builder 
-                            | _ -> to_imp (A.string_of_typ fdecl.styp) "2" 
+                            | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
-      | s -> to_imp (string_of_sstmt s) "3" 
+      | s -> to_imp (string_of_sstmt s)
 
-    in ignore (stmt builder (SBlock ([], fdecl.sbody)))
+    in ignore (stmt builder (SBlock fdecl.sbody))
   (* Build each function (there should only be one for Hello World), 
      and return the final module *)
   in List.iter build_function functions; the_module

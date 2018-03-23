@@ -97,7 +97,7 @@ let check (globals, functions, structs) =
 
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
-        Intlit  l -> (Int, SLiteral l)
+        Intlit  l -> (Int, SIntlit l)
       | _ -> (Void, SNoexpr)  (* fix this *)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
@@ -192,4 +192,4 @@ let check (globals, functions, structs) =
       | _ -> let err = "internal error: block didn't become a block?"
       in raise (Failure err)
     }
-  in (globals', List.map check_function functions)
+  in (globals', List.map check_function functions, [])
