@@ -33,6 +33,32 @@ let check (globals, functions, structs) =
 
   let globals' = check_binds "global" globals in
 
+  (**** Checking Structs ****)
+
+  (* Add struct name to symbol table *)
+  let add_struct map sd = 
+    let dup_err = "duplicate struct " ^ sd.sname
+    and make_err er = raise (Failure er)
+    and n = sd.sname (* Name of the struct *)
+    in match sd with (* No duplicate structs*)
+         _ when StringMap.mem n map -> make_err dup_err  
+       | _ ->  StringMap.add n sd map 
+  in
+  (* Collect all struct names into one symbol table *)
+  let struct_decls = List.fold_left add_struct StringMap.empty structs
+  in
+  (* Return a function from our symbol table *)
+  let find_struct s = 
+    try StringMap.find s struct_decls
+    with Not_found -> raise (Failure ("unrecognized struct " ^ s))
+  in
+
+  let check_struct struc =
+    (* Make sure no members are void or duplicates *)
+    let members' = check_binds "member" struc.members in
+
+
+
   (**** Checking Functions ****)
 
 
@@ -45,6 +71,7 @@ let check (globals, functions, structs) =
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printstr", String);
+                               ("printchar", Char);
 			                         ("printf", Float);
 			                         ("printbig", Int) ]
   in
@@ -102,6 +129,7 @@ let check (globals, functions, structs) =
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
       | Strlit l   -> (String, SStrlit l)
+      | Charlit l  -> (Char, SCharlit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 

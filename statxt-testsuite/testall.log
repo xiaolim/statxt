@@ -17,4 +17,10 @@ cc -o test-helloworld.exe test-helloworld.s printbig.o
 diff -b test-helloworld.out tests/test-helloworld.out > test-helloworld.diff
 ./test-helloworld.exe
 ###### SUCCESS
+
+###### Testing test-prints
+./statxt.native tests/test-prints.stxt > test-prints.ll
+Fatal error: exception Match_failure("semant.ml", 117, 19)
+./test-prints.exe
+###### FAILED
 ./testall.sh: line 195: CheckFail: command not found
