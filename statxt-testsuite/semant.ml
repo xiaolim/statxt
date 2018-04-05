@@ -53,38 +53,32 @@ let check (globals, functions, structs) =
     with Not_found -> raise (Failure ("unrecognized struct " ^ s))
   in
 
-  let check_struct struc =
-    (* Make sure no members are void or duplicates *)
-    let members' = check_binds "member" struc.members in
+
 
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
    let check_assign lvaluet rvaluet err =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
-    in  
+    in
+
+  let  check_struct struc =
+    (* Make sure no members are void or duplicates *)
+    let members' = check_binds "member" struc.members in
 
     (* Build local symbol table of variables for this struct *)
    let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-                  StringMap.empty (members')
+                  StringMap.empty members'
     in
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
-    in
+    in 5 in (* fix *)
 
 
     (* Return a semantically-checked expression, i.e., with a type *)
-    let rec expr = function
-        Intlit  l -> (Int, SIntlit l)
-      | Fliteral l -> (Float, SFliteral l)
-      | BoolLit l  -> (Bool, SBoolLit l)
-      | Strlit l   -> (String, SStrlit l)
-      | Charlit l  -> (Char, SCharlit l)
-      | Noexpr     -> (Void, SNoexpr)
-
-    in
+    
 
     let structs' = List.map check_struct structs in
 
@@ -250,4 +244,4 @@ let check (globals, functions, structs) =
       | _ -> let err = "internal error: block didn't become a block?"
       in raise (Failure err)
     }
-  in (globals', List.map check_function functions, structs)
+  in (globals', List.map check_function functions, structs')
