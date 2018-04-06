@@ -103,6 +103,7 @@ Check() {
     echo ""
     echo "Output: "
     Run "./${basename}.exe"
+    Run "cat ${basename}.out"
 
 
     if [ $error -eq 0 ] ; then

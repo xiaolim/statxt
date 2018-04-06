@@ -34,15 +34,17 @@ let translate (globals, functions, structs) =
 	   generate actual code *)
 	and the_module = L.create_module context "Statxt" in
 
-	(*let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 10
+	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8
 	in 
 
 	let make_struct_type sdecl =
 		let struct_t = L.named_struct_type context sdecl.ssname in
 		Hashtbl.add struct_type_table sdecl.ssname struct_t in 
 		let _  = List.map make_struct_type structs 
-	in *)
-
+	in
+	let lookup_struct_type ssname = try Hashtbl.find struct_type_table ssname
+		with Not_found -> raise(Failure("struct " ^ ssname ^ " not found"))
+	in 
 	(* Convert MicroC types to LLVM types *)
 	let ltype_of_typ = function
 		  A.Int    -> i32_t
@@ -51,8 +53,41 @@ let translate (globals, functions, structs) =
 		| A.Void   -> void_t
 		| A.String -> p_t
 		| A.Char   -> i8_t
-		| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
+		| A.Struct(ssname) -> lookup_struct_type ssname
+		| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))
 	in
+
+
+	(* Define structs and fill hashtable *)
+
+	let make_struct_body sdecl =
+		let struct_typ = try Hashtbl.find struct_type_table sdecl.ssname
+			with Not_found -> raise(Failure("struct type not defined")) in
+		let smembers_types = List.map (fun (t, _) -> t) sdecl.smembers in
+		let smembers_lltypes = Array.of_list (List.map ltype_of_typ smembers_types) in
+		L.struct_set_body struct_typ smembers_lltypes true
+	in  ignore(List.map make_struct_body structs);
+
+	let struct_field_indices =
+		let handles m one_struct = 
+		let struct_field_names = List.map (fun (_, n) -> n) one_struct.smembers in
+		let add_one n = n + 1 in
+		let add_fieldindex (m, i) field_name =
+			(StringMap.add field_name (add_one i) m, add_one i) in
+		let struct_field_map = 
+			List.fold_left add_fieldindex (StringMap.empty, -1) struct_field_names
+		in
+			StringMap.add one_struct.ssname (fst struct_field_map) m  
+		in
+		List.fold_left handles StringMap.empty structs  
+		in
+
+
+
+
+
+
+
 
 	(* Declare each global variable; remember its value in a map *)
 	let global_vars : L.llvalue StringMap.t =

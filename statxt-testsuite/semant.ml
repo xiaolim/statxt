@@ -53,15 +53,13 @@ let check (globals, functions, structs) =
     with Not_found -> raise (Failure ("unrecognized struct " ^ s))
   in
 
-
-
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
    let check_assign lvaluet rvaluet err =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in
 
-  let  check_struct struc =
+   let check_struct struc =
     (* Make sure no members are void or duplicates *)
     let members' = check_binds "member" struc.members in
 
@@ -74,7 +72,27 @@ let check (globals, functions, structs) =
     let type_of_identifier s =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
-    in 5 in (* fix *)
+    in 
+
+
+    let rec expr = function
+        Noexpr     -> (Void, SNoexpr)
+      | Id s       -> (type_of_identifier s, SId s)
+    in
+    {
+      ssname = struc.sname;
+      smembers = members';
+    } in
+
+
+
+
+
+
+
+
+
+    (*5 in (* fix *) *)
 
 
     (* Return a semantically-checked expression, i.e., with a type *)
