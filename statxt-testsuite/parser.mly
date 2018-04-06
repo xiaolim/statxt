@@ -33,6 +33,7 @@ let trd (_,_,c) = c;;
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left DOT
 %right NOT NEG
 
 
@@ -119,7 +120,7 @@ expr:
   | FLIT             { Fliteral($1)           }  
   | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
-  | PIPE array_list PIPE { Arraylit(List.rev $2, List.length $2) }
+  | LSQUARE array_list RSQUARE { Arraylit(List.rev $2, List.length $2) }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr TIMES  expr { Binop($1, Mult,  $3)   }
@@ -136,6 +137,7 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
+  | ID DOT ID 		 { Sretrieve ($1, $3)     }
   | ID DOT ID ASSIGN expr     { Sassign($1, $3, $5) }
   | ID LSQUARE INTLIT RSQUARE ASSIGN expr { Arrassign($1, $3, $6) }
   | LPAREN expr RPAREN { $2                   }

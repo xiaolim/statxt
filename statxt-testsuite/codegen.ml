@@ -68,19 +68,20 @@ let translate (globals, functions, structs) =
 		L.struct_set_body struct_typ smembers_lltypes true
 	in  ignore(List.map make_struct_body structs);
 
-	let struct_field_indices =
-		let handles m one_struct = 
-		let struct_field_names = List.map (fun (_, n) -> n) one_struct.smembers in
+	(* for dot ops to access members *)
+	let struct_element_index =
+		let handles m each_struct = 
+		let struct_element_names = List.map (fun (_, n) -> n) each_struct.smembers in
 		let add_one n = n + 1 in
-		let add_fieldindex (m, i) field_name =
-			(StringMap.add field_name (add_one i) m, add_one i) in
-		let struct_field_map = 
-			List.fold_left add_fieldindex (StringMap.empty, -1) struct_field_names
+		let add_element_index (m, i) element_name =
+			(StringMap.add element_name (add_one i) m, add_one i) in
+		let struct_element_map = 
+			List.fold_left add_element_index (StringMap.empty, -1) struct_element_names
 		in
-			StringMap.add one_struct.ssname (fst struct_field_map) m  
-		in
-		List.fold_left handles StringMap.empty structs  
-		in
+		StringMap.add each_struct.ssname (fst struct_element_map) m  
+	in
+	List.fold_left handles StringMap.empty structs  
+	in
 
 
 

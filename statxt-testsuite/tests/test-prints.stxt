@@ -9,7 +9,9 @@ int main()
 {
 	struct point p1;
 
-	p1.x = 5;
+	int i;
+
+	i = p1.x;
 
 	print(62);
 	return 0;

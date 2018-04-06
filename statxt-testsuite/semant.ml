@@ -85,16 +85,6 @@ let check (globals, functions, structs) =
     } in
 
 
-
-
-
-
-
-
-
-    (*5 in (* fix *) *)
-
-
     (* Return a semantically-checked expression, i.e., with a type *)
     
 
