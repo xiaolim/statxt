@@ -1,8 +1,0 @@
-int main()
-{
-  double a;
-  a = 42.1;
-  a = a + 3.3;
-  print_double(a);
-  return 0;
-}

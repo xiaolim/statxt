@@ -1,8 +1,0 @@
-string test(string a) {
-	return a;
-}
-
-int main() {
-	string b = "hello";
-	print_string(test(b));
-}
