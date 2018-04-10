@@ -1,0 +1,40 @@
+/usr/bin/lli
+
+###### Testing test-assign
+./statxt.native tests/test-assign.stxt > test-assign.ll
+Fatal error: exception Not_found
+./test-assign.exe
+./testall.sh: line 63: ./test-assign.exe: No such file or directory
+cat test-assign.out
+cat: test-assign.out: No such file or directory
+###### FAILED
+
+###### Testing test-hello
+./statxt.native tests/test-hello.stxt > test-hello.ll
+llc test-hello.ll > test-hello.s
+cc -o test-hello.exe test-hello.s printbig.o
+./test-hello.exe
+diff -b test-hello.out tests/test-hello.out > test-hello.diff
+./test-hello.exe
+cat test-hello.out
+###### SUCCESS
+
+###### Testing test-helloworld
+./statxt.native tests/test-helloworld.stxt > test-helloworld.ll
+llc test-helloworld.ll > test-helloworld.s
+cc -o test-helloworld.exe test-helloworld.s printbig.o
+./test-helloworld.exe
+diff -b test-helloworld.out tests/test-helloworld.out > test-helloworld.diff
+./test-helloworld.exe
+cat test-helloworld.out
+###### SUCCESS
+
+###### Testing test-prints
+./statxt.native tests/test-prints.stxt > test-prints.ll
+Fatal error: exception Match_failure("semant.ml", 158, 19)
+./test-prints.exe
+./testall.sh: line 63: ./test-prints.exe: No such file or directory
+cat test-prints.out
+cat: test-prints.out: No such file or directory
+###### FAILED
+./testall.sh: line 196: CheckFail: command not found

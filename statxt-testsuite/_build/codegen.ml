@@ -168,29 +168,8 @@ let translate (globals, functions, structs) =
 			| SId s -> L.build_load (lookup s) s builder
 			(*| SAssign (s, e) -> let e' = expr builder e in
 								let _  = L.build_store e' (lookup s) builder in e'*)
-
-
-
-
-
-
-
 			| SAssign (e1, e2) -> let e2' = expr builder e2 in
 								let _  = L.build_store e2' (lookup  (string_of_sexpr e1)) builder in e2'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			| SBinop (e1, op, e2) ->
 				let (t, _) = e1
 				and e1' = expr builder e1

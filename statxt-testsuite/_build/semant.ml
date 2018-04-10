@@ -163,36 +163,12 @@ let check (globals, functions, structs) =
       | Charlit l  -> (Char, SCharlit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
-
-
-
-
-
-
-
-
-
-
-
-
       | Assign(e1, e2) as ex -> 
           let (lt, e1') = expr e1
           and (rt, e2') = expr e2 in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
           in (check_assign lt rt err, SAssign((lt, e1'), (rt, e2')))
-
-
-
-
-
-
-
-
-
-
-
-          
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with
