@@ -68,13 +68,17 @@ let check (globals, functions, structs) =
                   StringMap.empty members'
     in
 
-    (* Return a variable from our local symbol table *)
+    let find_symbol ele =
+    	try StringMap.find ele symbols
+    	with Not_found -> raise (Failure ("unrecognized struct member " ^ ele))
+	in
+
+(*   (* Return a variable from our local symbol table *)
     let type_of_identifier s =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
-    in 
-
-
+    in
+*)
     let rec expr = function
         Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
@@ -84,14 +88,24 @@ let check (globals, functions, structs) =
       smembers = members';
     } in
 
-
     (* Return a semantically-checked expression, i.e., with a type *)
     
-
     let structs' = List.map check_struct structs in
 
-  (**** Checking Functions ****)
+    (* Implementing helper function for Sretrieve/Sassign to check if struct/member exists *)
 
+    let verify_struct sname elements =
+    	let s = find_struct sname in
+    	let struct_elements = find_symbol elements 
+    in
+
+    let check_element_exist lhs rhs =
+    	match lhs with
+    		  Struct s -> verify_struct s rhs
+    		| _ -> raise(Failure(string_of_typ lhs ^ " is not a struct"))
+    in
+
+  (**** Checking Functions ****)
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls = 
@@ -102,7 +116,7 @@ let check (globals, functions, structs) =
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printstr", String);
-                               ("printchar", Char);
+                               		 ("printchar", Char);
 			                         ("printf", Float);
 			                         ("printbig", Int) ]
   in
@@ -169,6 +183,7 @@ let check (globals, functions, structs) =
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
           in (check_assign lt rt err, SAssign(var, (rt, e')))
+      | Sretrieve(str, element) ->  
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with

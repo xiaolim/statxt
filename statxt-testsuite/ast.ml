@@ -20,8 +20,7 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Assign of string * expr
-  | Sretrieve of string * string
-  | Sassign of string * string * expr
+  | Sretrieve of expr * string
   | Arrassign of string * int * expr
   | Call of string * expr list
   | Noexpr
@@ -76,14 +75,13 @@ let rec string_of_expr = function
   | Strlit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  | Id(s) -> s
+  | Id(s) -> sa
   | Arraylit(exp, i) -> "|" ^ String.concat ", " (List.map string_of_expr exp) ^ "| (length: " ^ (string_of_int i) ^ ")"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  | Sretrieve(s, ele) -> s ^ "." ^ ele
-  | Sassign(s, ele, e) -> s ^ "." ^ ele ^ " = " ^ string_of_expr e
+  | Sretrieve(expr, s) -> string_of_expr expr ^ "." ^ s
   | Arrassign(a, inx, e) -> a ^ "[" ^ (string_of_int inx) ^ "] = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"

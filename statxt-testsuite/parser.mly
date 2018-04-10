@@ -135,10 +135,9 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NEG { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
-  | ID ASSIGN expr   { Assign($1, $3)         }
+  | expr ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
-  | ID DOT ID 		 { Sretrieve ($1, $3)     }
-  | ID DOT ID ASSIGN expr     { Sassign($1, $3, $5) }
+  | expr DOT ID 		 { SRetrieve ($1, $3)     }
   | ID LSQUARE INTLIT RSQUARE ASSIGN expr { Arrassign($1, $3, $6) }
   | LPAREN expr RPAREN { $2                   }
 
