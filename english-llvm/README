@@ -1,6 +1,0 @@
-To run and test:
-
-$ make
-$ ./testall.sh
-$ ./english.native <hello_world.ell> out.s
-$ lli out.s

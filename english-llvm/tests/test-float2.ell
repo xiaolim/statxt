@@ -1,5 +1,0 @@
-int main()
-{
-  print_double(2.5 + 7.5);
-  return 0;
-}

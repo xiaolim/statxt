@@ -94,11 +94,14 @@ let check (globals, functions, structs) =
 
     (* Implementing helper function for Sretrieve/Sassign to check if struct/member exists *)
 
-    let verify_struct sname elements =
-    	let s = find_struct sname in
-    	let struct_elements = find_symbol elements 
+    let verify_struct sname element =
+    	let s = try List.find (fun s -> s.sname = sname) structs
+        with Not_found -> raise (Failure("Struct " ^ sname ^ " not found")) in
+      let smembers = List.map (fun (ty, name) -> (ty, name)) s.smembers in
+      try fst(List.find (fun f -> snd(f) = element) smembers) with
+      Not_found -> raise (Failure("Field " ^ element ^ " not found in Struct" ^ sname))
     in
-
+      
     let check_element_exist lhs rhs =
     	match lhs with
     		  Struct s -> verify_struct s rhs
@@ -207,7 +210,7 @@ let check (globals, functions, structs) =
 
 
 
-      (*| Sretrieve(str, element) ->  *)
+      (*| Sretrieve(str, element) -> check_element_exist str element *)
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with
