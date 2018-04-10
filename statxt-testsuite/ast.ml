@@ -75,7 +75,7 @@ let rec string_of_expr = function
   | Strlit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  | Id(s) -> sa
+  | Id(s) -> s
   | Arraylit(exp, i) -> "|" ^ String.concat ", " (List.map string_of_expr exp) ^ "| (length: " ^ (string_of_int i) ^ ")"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2

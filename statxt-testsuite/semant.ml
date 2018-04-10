@@ -190,8 +190,8 @@ let check (globals, functions, structs) =
 
 
       | Assign(e1, e2) as ex -> 
-          let (lt, e1') = expr e1
-          and (rt, e2') = expr e2 in
+          let (lt, e1') = expr e1 in
+          let (rt, e2') = expr e2 in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
             in (check_assign lt rt err, SAssign((lt, e1'), (rt, e2')))
