@@ -157,6 +157,9 @@ let translate (globals, functions, structs) =
 			with Not_found -> StringMap.find n global_vars
 		in
 
+
+
+
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i
@@ -179,26 +182,30 @@ let translate (globals, functions, structs) =
 
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
 												  (_, SId s) -> lookup s
-												(*| (_, SSretrieve (str,element)) -> lookup str*)
+												(*| (_, SSretrieve (str,element)) ->  *)
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
 									let _ = L.build_store e2' e1' builder in e2'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			| SSretrieve (str, element) ->
+				(match str with
+					  (_, SId s) ->
+						let etype = fst( 
+							let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+							try List.find (fun n -> snd(n) = s) fdecl_locals
+							with Not_found -> raise (Failure("Unable to find" ^ s )))
+						in
+						(try match etype with
+							  A.Struct t->
+								let index_number_list = StringMap.find t struct_element_index in
+								let index_number = StringMap.find element index_number_list in
+								let struct_llvalue = lookup s in
+								let access_llvalue = L.build_struct_gep struct_llvalue index_number "tmp" builder in
+								access_llvalue
+							| _ -> raise (Failure("not found"))
+						with Not_found -> raise (Failure("not found" ^ s)))
+					| _ -> raise (Failure("lhs not found")))    
 
 
 

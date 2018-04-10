@@ -1,20 +1,21 @@
 struct point
 {
 	int x;
-	float y;
+	int y;
 	int z;
 };
 
 struct point1
 {
-	int x;
-	int y;
-	int z;
+	float x;
+	float y;
+	float z;
 };
 
 int main()
 {
 	struct point p1;
+	struct point p3;
 	struct point1 p2;
 
 	int i;
@@ -22,7 +23,13 @@ int main()
 
 	i = 5;
 
-	p1.x = i;
+	p1 = p3;
+
+	/**/
+
+	p1.x;
+
+	/**/
 
 
 
