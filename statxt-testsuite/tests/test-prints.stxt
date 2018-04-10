@@ -1,6 +1,13 @@
 struct point
 {
 	int x;
+	float y;
+	int z;
+};
+
+struct point1
+{
+	int x;
 	int y;
 	int z;
 };
@@ -8,11 +15,17 @@ struct point
 int main()
 {
 	struct point p1;
+	struct point1 p2;
 
 	int i;
+	float f;
 
-	i = p1.x;
+	i = 5;
 
-	print(62);
+	p1.x = i;
+
+
+
+	print(i);
 	return 0;
 }

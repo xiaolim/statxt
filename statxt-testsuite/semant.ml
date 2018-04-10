@@ -33,10 +33,23 @@ let check (globals, functions, structs) =
 
   let globals' = check_binds "global" globals in
 
+
+
+
+
+
+
+
+
+
+
+
+
+
   (**** Checking Structs ****)
 
   (* Add struct name to symbol table *)
-  let add_struct map sd = 
+(*  let add_struct map sd = 
     let dup_err = "duplicate struct " ^ sd.sname
     and make_err er = raise (Failure er)
     and n = sd.sname (* Name of the struct *)
@@ -44,37 +57,46 @@ let check (globals, functions, structs) =
          _ when StringMap.mem n map -> make_err dup_err  
        | _ ->  StringMap.add n sd map 
   in
+*)
+
   (* Collect all struct names into one symbol table *)
-  let struct_decls = List.fold_left add_struct StringMap.empty structs
+(*  let struct_decls = List.fold_left add_struct StringMap.empty structs
   in
+*)
   (* Return a function from our symbol table *)
-  let find_struct s = 
+(*  let find_struct s = 
     try StringMap.find s struct_decls
     with Not_found -> raise (Failure ("unrecognized struct " ^ s))
   in
+*)
 
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
-   let check_assign lvaluet rvaluet err =
+(*   let check_assign lvaluet rvaluet err =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in
+*)
 
    let check_struct struc =
     (* Make sure no members are void or duplicates *)
     let members' = check_binds "member" struc.members in
 
     (* Build local symbol table of variables for this struct *)
+(*
    let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
                   StringMap.empty members'
     in
+*)
 
+(*
     let find_symbol ele =
     	try StringMap.find ele symbols
     	with Not_found -> raise (Failure ("unrecognized struct member " ^ ele))
-	in
+	  in
+*)
 
    (* Return a variable from our local symbol table *)
-    let type_of_identifier s =
+    (*let type_of_identifier s =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
@@ -82,7 +104,7 @@ let check (globals, functions, structs) =
     let rec expr = function
         Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
-    in
+    in *)
     {
       ssname = struc.sname;
       smembers = members';
@@ -102,7 +124,7 @@ let check (globals, functions, structs) =
     let verify_struct sname element =
     	let s = try List.find (fun s -> s.sname = sname) structs
         with Not_found -> raise (Failure("Struct " ^ sname ^ " not found")) in
-      let smembers = List.map (fun (ty, name) -> (ty, name)) s.smembers in
+      let smembers = List.map (fun (ty, name) -> (ty, name)) s.members in
       try fst(List.find (fun f -> snd(f) = element) smembers) with
       Not_found -> raise (Failure("Field " ^ element ^ " not found in Struct" ^ sname))
     in
@@ -112,6 +134,12 @@ let check (globals, functions, structs) =
     		  Struct s -> verify_struct s rhs
     		| _ -> raise(Failure(string_of_typ lhs ^ " is not a struct"))
     in
+
+
+
+
+
+
 
   (**** Checking Functions ****)
 
@@ -124,10 +152,12 @@ let check (globals, functions, structs) =
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printstr", String);
-                               		 ("printchar", Char);
+                               ("printchar", Char);
 			                         ("printf", Float);
 			                         ("printbig", Int) ]
   in
+
+
 
   (* Add function name to symbol table *)
   let add_func map fd = 
@@ -183,6 +213,7 @@ let check (globals, functions, structs) =
       | BoolLit l  -> (Bool, SBoolLit l)
       | Strlit l   -> (String, SStrlit l)
       | Charlit l  -> (Char, SCharlit l)
+      | Structlit l -> (String, SStructlit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
 
@@ -204,6 +235,15 @@ let check (globals, functions, structs) =
             string_of_typ rt ^ " in " ^ string_of_expr ex
             in (check_assign lt rt err, SAssign((lt, e1'), (rt, e2')))
 
+(*
+              in (check_assign lt rt err, SAssign((lt, e1'), (rt, e2')))
+      | Assign(var, e) as ex -> 
+          let lt = type_of_identifier var
+          and (rt, e') = expr e in
+          let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
+            string_of_typ rt ^ " in " ^ string_of_expr ex
+          in (check_assign lt rt err, SAssign(var, (rt, e')))
+*)
 
 
 
@@ -214,8 +254,7 @@ let check (globals, functions, structs) =
 
 
 
-
-      | Sretrieve(str, element) ->  check_element_exist str element
+      | Sretrieve(str, element) ->  (check_element_exist (fst (expr str)) element, SSretrieve ((expr str), element))
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with
@@ -284,7 +323,7 @@ let check (globals, functions, structs) =
           let rec check_stmt_list = function
               [Return _ as s] -> [check_stmt s]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | Block (bl, sl) :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
+            | Block (_, sl) :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> []
           in SBlock(bl, (check_stmt_list sl))
