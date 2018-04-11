@@ -167,28 +167,38 @@ let translate (globals, functions, structs) =
 			| SFliteral l -> L.const_float_of_string float_t l
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
-(*
-			| SStructlit s ->
-*)
+			| SStructlit s -> lookup s
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
-(*
-			| SAssign (s, e) -> let e' = expr builder e in
-								let _  = L.build_store e' (lookup s) builder in e'
-
-			| SAssign (e1, e2) -> let e2' = expr builder e2 in
-								let _  = L.build_store e2' (lookup  (string_of_sexpr e1)) builder in e2'
-*)
-
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
 												  (_, SId s) -> lookup s
-												(*| (_, SSretrieve (str,element)) ->  *)
+												| (_, SStructlit s) -> lookup s
+												| (_, SSretrieve (str,element)) -> 
+													(match str with
+														  (_, SId s) ->
+															let etype = fst( 
+																let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+																try List.find (fun n -> snd(n) = s) fdecl_locals
+																with Not_found -> raise (Failure("Unable to find" ^ s )))
+															in
+															(try match etype with
+																  A.Struct t->
+																	let index_number_list = StringMap.find t struct_element_index in
+																	let index_number = StringMap.find element index_number_list in
+																	let struct_llvalue = lookup s in
+																	let access_llvalue = L.build_struct_gep struct_llvalue index_number "tmp" builder in
+																	access_llvalue
+																| _ -> raise (Failure("not found"))
+															with Not_found -> raise (Failure("not found" ^ s)))
+														| _ -> raise (Failure("lhs not found")))    
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
 									let _ = L.build_store e2' e1' builder in e2'
 
 			| SSretrieve (str, element) ->
+
+				let llvalue = 
 				(match str with
 					  (_, SId s) ->
 						let etype = fst( 
@@ -202,10 +212,27 @@ let translate (globals, functions, structs) =
 								let index_number = StringMap.find element index_number_list in
 								let struct_llvalue = lookup s in
 								let access_llvalue = L.build_struct_gep struct_llvalue index_number "tmp" builder in
-								access_llvalue
+								struct_llvalue
 							| _ -> raise (Failure("not found"))
 						with Not_found -> raise (Failure("not found" ^ s)))
-					| _ -> raise (Failure("lhs not found")))    
+					| _ -> raise (Failure("lhs not found")))
+				in
+				let built_e = expr builder str in
+				let built_e_lltype = L.type_of built_e in
+				let built_e_opt = L.struct_name built_e_lltype in
+				let built_e_name = (match built_e_opt with 
+										  None -> ""
+										| Some(s) -> s)
+				in 
+				let indices = StringMap.find built_e_name struct_element_index in
+
+				let index = StringMap.find element indices in
+
+
+
+				let access_llvalue1 = L.build_struct_gep llvalue index "tmp" builder in
+
+					L.build_load access_llvalue1 "tmp" builder
 
 
 

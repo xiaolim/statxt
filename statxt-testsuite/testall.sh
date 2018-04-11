@@ -103,6 +103,9 @@ Check() {
     echo ""
     echo "Output: "
     Run "./${basename}.exe"
+
+    echo ""
+    echo "in .out:"
     Run "cat ${basename}.out"
 
 
