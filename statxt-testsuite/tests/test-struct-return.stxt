@@ -9,7 +9,8 @@ struct book book_title() {
 }
 
 int main() {
-	struct book b1 = book_title();
+	struct book b1;
+	b1 = book_title();
 	printstr(b1.title); 
 	return 0;
 }

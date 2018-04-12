@@ -1,0 +1,19 @@
+struct point {
+	int x;
+	int y;
+	int z;
+};
+
+int test_function(struct point p) {
+	p.x = 1;
+	return p.x;
+
+}
+
+int main() {
+	struct point pt;
+	int result;
+	result = test_function(pt);
+	print(result);
+	return 0;
+}

@@ -1,23 +1,21 @@
 struct types {
 	int i;
 	char c;
-	bool t;
 	float f;
 	string s;
-}
+};
 
 struct types2 {
 	int i;
 	char c;
-	bool t;
 	float f;
 	string s;
-}
+};
 
 int main() {
 	
 	struct types t1;
-	struct types t2;
+	struct types2 t2;
 
 	t1.i = 1;
 	t2.i = t1.i;
@@ -25,20 +23,16 @@ int main() {
 	t1.c = 'a';
 	t2.c = t1.c;
 
-	t1.t = true;
-	t2.t = t1.f;
-
 	t1.f = 3.14;
 	t2.f = t1.f;
 
-	t1.s = "hello world!"
+	t1.s = "hello world!";
 	t2.s = t1.s;
 
 	print(t2.i);
-	print(t2.c);
-	print(t2.t);
-	print(t2.f);
-	print(t2.s);
+	printchar(t2.c);
+	printf(t2.f);
+	printstr(t2.s);
 
 	return 0;
 }

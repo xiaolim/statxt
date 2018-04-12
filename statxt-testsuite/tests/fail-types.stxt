@@ -1,0 +1,11 @@
+int main()
+{
+	int i;
+	float f;
+
+	i = 0;
+
+	i = f;
+
+	return 0;
+}
