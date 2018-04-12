@@ -1,0 +1,38 @@
+struct types {
+	int i;
+	char c;
+	float f;
+	string s;
+};
+
+struct types2 {
+	int i;
+	char c;
+	float f;
+	string s;
+};
+
+int main() {
+	
+	struct types t1;
+	struct types2 t2;
+
+	t1.i = 1;
+	t2.i = t1.i;
+
+	t1.c = 'a';
+	t2.c = t1.c;
+
+	t1.f = 3.14;
+	t2.f = t1.f;
+
+	t1.s = "hello world!";
+	t2.s = t1.s;
+
+	print(t2.i);
+	printchar(t2.c);
+	printf(t2.f);
+	printstr(t2.s);
+
+	return 0;
+}

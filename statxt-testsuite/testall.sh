@@ -20,6 +20,8 @@ CC="cc"
 STATXT="./statxt.native"
 #STATXT="_build/microc.native"
 
+count=0
+
 # Set time limit for all operations
 ulimit -t 30
 
@@ -78,6 +80,7 @@ RunFail() {
 }
 
 Check() {
+    count=$((count+1))
     error=0
     basename=`echo $1 | sed 's/.*\\///
                              s/.stxt//'`
@@ -85,7 +88,7 @@ Check() {
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
     echo ""
-    echo -n "$basename..."
+    echo -n $count ": $basename..."
 
     echo 1>&2
     echo "###### Testing $basename" 1>&2
@@ -112,7 +115,7 @@ Check() {
 	if [ $keep -eq 0 ] ; then
 	    rm -f $generatedfiles
 	fi
-	echo "OK"
+	echo "OK: " $count
 	echo "###### SUCCESS" 1>&2
     else
 	echo "###### FAILED" 1>&2
@@ -121,13 +124,15 @@ Check() {
 }
 
 CheckFail() {
+    count=$((count+1))
     error=0
     basename=`echo $1 | sed 's/.*\\///
                              s/.stxt//'`
     reffile=`echo $1 | sed 's/.stxt$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
-    echo -n "$basename..."
+    echo ""
+    echo -n $count ": $basename..."
 
     echo 1>&2
     echo "###### Testing $basename" 1>&2
@@ -144,7 +149,7 @@ CheckFail() {
 	if [ $keep -eq 0 ] ; then
 	    rm -f $generatedfiles
 	fi
-	echo "OK"
+	echo "OK: " $count
 	echo "###### SUCCESS" 1>&2
     else
 	echo "###### FAILED" 1>&2
