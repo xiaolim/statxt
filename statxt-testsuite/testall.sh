@@ -68,14 +68,14 @@ Run() {
 
 # RunFail <args>
 # Report the command, run it, and expect an error
-#RunFail() {
-#    echo $* 1>&2
-#    eval $* && {
-#	SignalError "failed: $* did not report an error"
-#	return 1
-#    }
-#    return 0
-#}
+RunFail() {
+    echo $* 1>&2
+    eval $* && {
+	SignalError "failed: $* did not report an error"
+	return 1
+    }
+    return 0
+}
 
 Check() {
     error=0
@@ -90,6 +90,10 @@ Check() {
     echo 1>&2
     echo "###### Testing $basename" 1>&2
 
+    echo ""
+    echo "expected in .out:"
+    Run "cat ${reffile}.out"
+
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
@@ -100,13 +104,8 @@ Check() {
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files
-    echo ""
-    echo "Output: "
+    echo "actual output: "
     Run "./${basename}.exe"
-
-    echo ""
-    echo "in .out:"
-    Run "cat ${basename}.out"
 
 
     if [ $error -eq 0 ] ; then
@@ -121,37 +120,37 @@ Check() {
     fi
 }
 
-#CheckFail() {
-#    error=0
-#    basename=`echo $1 | sed 's/.*\\///
-#                             s/.stxt//'`
-#    reffile=`echo $1 | sed 's/.stxt$//'`
-#    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
-#
-#    echo -n "$basename..."
-#
-#    echo 1>&2
-#    echo "###### Testing $basename" 1>&2
-#
-#    generatedfiles=""
-#
-#    generatedfiles="$generatedfiles ${basename}.err ${basename}.diff" &&
-#    RunFail "$STATXT" "<" $1 "2>" "${basename}.err" ">>" $globallog &&
-#    Compare ${basename}.err ${reffile}.err ${basename}.diff
-#
-#    # Report the status and clean up the generated files
-#
-#    if [ $error -eq 0 ] ; then
-#	if [ $keep -eq 0 ] ; then
-#	    rm -f $generatedfiles
-#	fi
-#	echo "OK"
-#	echo "###### SUCCESS" 1>&2
-#    else
-#	echo "###### FAILED" 1>&2
-#	globalerror=$error
-#    fi
-#}
+CheckFail() {
+    error=0
+    basename=`echo $1 | sed 's/.*\\///
+                             s/.stxt//'`
+    reffile=`echo $1 | sed 's/.stxt$//'`
+    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+
+    echo -n "$basename..."
+
+    echo 1>&2
+    echo "###### Testing $basename" 1>&2
+
+    generatedfiles=""
+
+    generatedfiles="$generatedfiles ${basename}.err ${basename}.diff" &&
+    RunFail "$STATXT" "<" $1 "2>" "${basename}.err" ">>" $globallog &&
+    Compare ${basename}.err ${reffile}.err ${basename}.diff
+
+    # Report the status and clean up the generated files
+
+    if [ $error -eq 0 ] ; then
+	if [ $keep -eq 0 ] ; then
+	    rm -f $generatedfiles
+	fi
+	echo "OK"
+	echo "###### SUCCESS" 1>&2
+    else
+	echo "###### FAILED" 1>&2
+	globalerror=$error
+    fi
+}
 
 
 while getopts kdpsh c; do

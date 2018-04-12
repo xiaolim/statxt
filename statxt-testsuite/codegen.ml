@@ -207,11 +207,8 @@ let translate (globals, functions, structs) =
 							with Not_found -> raise (Failure("Unable to find" ^ s )))
 						in
 						(try match etype with
-							  A.Struct t->
-								let index_number_list = StringMap.find t struct_element_index in
-								let index_number = StringMap.find element index_number_list in
+							  A.Struct _->
 								let struct_llvalue = lookup s in
-								let access_llvalue = L.build_struct_gep struct_llvalue index_number "tmp" builder in
 								struct_llvalue
 							| _ -> raise (Failure("not found"))
 						with Not_found -> raise (Failure("not found" ^ s)))

@@ -38,5 +38,7 @@ int main()
 	print(p2.y);
 	print(p2.z);
 
+	print(i);
+
 	return 0;
 }
