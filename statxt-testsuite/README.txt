@@ -17,7 +17,6 @@ usage:
 	make
 
 
-
 Section 2: Execute compiler
 Once the make command is executed, statxt.native is created and
 we can pass arguments into the statxt.native executable
@@ -41,7 +40,3 @@ with expected output in the *.out file.
 
 The test-hello.stxt program in /tests/ simply prints 3 integers.
 The test-helloworld.stxt program in /tests/ simply prints the string "hello world"
-
-
-We spoke to Professor Townsend and he said warnings for not fully implementing everything
-(which results in not exhuastive pattern matching and unused variables) are fine.
