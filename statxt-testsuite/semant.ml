@@ -35,91 +35,18 @@ let check (globals, functions, structs) =
 
 
 
-
-
-
-
-
-
-
-
-
-
-
   (**** Checking Structs ****)
-
-  (* Add struct name to symbol table *)
-(*  let add_struct map sd = 
-    let dup_err = "duplicate struct " ^ sd.sname
-    and make_err er = raise (Failure er)
-    and n = sd.sname (* Name of the struct *)
-    in match sd with (* No duplicate structs*)
-         _ when StringMap.mem n map -> make_err dup_err  
-       | _ ->  StringMap.add n sd map 
-  in
-*)
-
-  (* Collect all struct names into one symbol table *)
-(*  let struct_decls = List.fold_left add_struct StringMap.empty structs
-  in
-*)
-  (* Return a function from our symbol table *)
-(*  let find_struct s = 
-    try StringMap.find s struct_decls
-    with Not_found -> raise (Failure ("unrecognized struct " ^ s))
-  in
-*)
-
-    (* Raise an exception if the given rvalue type cannot be assigned to
-       the given lvalue type *)
-(*   let check_assign lvaluet rvaluet err =
-       if lvaluet = rvaluet then lvaluet else raise (Failure err)
-    in
-*)
 
    let check_struct struc =
     (* Make sure no members are void or duplicates *)
     let members' = check_binds "member" struc.members in
-
-    (* Build local symbol table of variables for this struct *)
-(*
-   let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-                  StringMap.empty members'
-    in
-*)
-
-(*
-    let find_symbol ele =
-    	try StringMap.find ele symbols
-    	with Not_found -> raise (Failure ("unrecognized struct member " ^ ele))
-	  in
-*)
-
-   (* Return a variable from our local symbol table *)
-    (*let type_of_identifier s =
-      try StringMap.find s symbols
-      with Not_found -> raise (Failure ("undeclared identifier " ^ s))
-    in
-
-    let rec expr = function
-        Noexpr     -> (Void, SNoexpr)
-      | Id s       -> (type_of_identifier s, SId s)
-    in *)
     {
       ssname = struc.sname;
       smembers = members';
     } in
 
     (* Return a semantically-checked expression, i.e., with a type *)
-    
     let structs' = List.map check_struct structs in
-
-    (* Implementing helper function for Sretrieve/Sassign to check if struct/member exists *)
-(*
-    let verify_struct sname elements =
-      let s = find_struct sname in
-      let struct_elements = find_symbol elements 
-*)
 
     let verify_struct sname element =
     	let s = try List.find (fun s -> s.sname = sname) structs
@@ -134,9 +61,6 @@ let check (globals, functions, structs) =
     		  Struct s -> verify_struct s rhs
     		| _ -> raise(Failure(string_of_typ lhs ^ " is not a struct"))
     in
-
-
-
 
 
 
@@ -216,44 +140,12 @@ let check (globals, functions, structs) =
       | Structlit l -> (String, SStructlit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
-
-
-
-
-
-
-
-
-
-
-
-
       | Assign(e1, e2) as ex -> 
           let (lt, e1') = expr e1 in
           let (rt, e2') = expr e2 in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
             in (check_assign lt rt err, SAssign((lt, e1'), (rt, e2')))
-
-(*
-              in (check_assign lt rt err, SAssign((lt, e1'), (rt, e2')))
-      | Assign(var, e) as ex -> 
-          let lt = type_of_identifier var
-          and (rt, e') = expr e in
-          let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
-            string_of_typ rt ^ " in " ^ string_of_expr ex
-          in (check_assign lt rt err, SAssign(var, (rt, e')))
-*)
-
-
-
-
-
-
-
-
-
-
       | Sretrieve(str, element) ->  (check_element_exist (fst (expr str)) element, SSretrieve ((expr str), element))
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
@@ -296,6 +188,7 @@ let check (globals, functions, structs) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | _ -> raise (Failure ("not implemented yet"))
     in
 
     let check_bool_expr e = 

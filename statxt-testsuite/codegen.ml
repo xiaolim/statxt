@@ -157,9 +157,6 @@ let translate (globals, functions, structs) =
 			with Not_found -> StringMap.find n global_vars
 		in
 
-
-
-
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i
@@ -189,16 +186,14 @@ let translate (globals, functions, structs) =
 																	let access_llvalue = L.build_struct_gep struct_llvalue index_number "tmp" builder in
 																	access_llvalue
 																| _ -> raise (Failure("not found"))
-															with Not_found -> raise (Failure("not found" ^ s)))
+															with Not_found -> raise (Failure(s ^ "not found")))
 														| _ -> raise (Failure("lhs not found")))    
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
 									let _ = L.build_store e2' e1' builder in e2'
-
 			| SSretrieve (str, element) ->
-
-				let llvalue = 
+				let s_llvalue = 
 				(match str with
 					  (_, SId s) ->
 						let etype = fst( 
@@ -207,11 +202,11 @@ let translate (globals, functions, structs) =
 							with Not_found -> raise (Failure("Unable to find" ^ s )))
 						in
 						(try match etype with
-							  A.Struct _->
+							  A.Struct _ ->
 								let struct_llvalue = lookup s in
 								struct_llvalue
 							| _ -> raise (Failure("not found"))
-						with Not_found -> raise (Failure("not found" ^ s)))
+						with Not_found -> raise (Failure(s ^ "not found")))
 					| _ -> raise (Failure("lhs not found")))
 				in
 				let built_e = expr builder str in
@@ -222,17 +217,9 @@ let translate (globals, functions, structs) =
 										| Some(s) -> s)
 				in 
 				let indices = StringMap.find built_e_name struct_element_index in
-
 				let index = StringMap.find element indices in
-
-
-
-				let access_llvalue1 = L.build_struct_gep llvalue index "tmp" builder in
-
-					L.build_load access_llvalue1 "tmp" builder
-
-
-
+				let access_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
+					L.build_load access_llvalue "tmp" builder
 
 			| SBinop (e1, op, e2) ->
 				let (t, _) = e1
