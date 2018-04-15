@@ -28,7 +28,7 @@ int main()
 
 	int i;
 
-	i = 5;
+	i = p1.x + p1.y + p1.z;
 
 	print(p1.x);
 	print(p1.y);

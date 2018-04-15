@@ -29,10 +29,35 @@ int main() {
 	t1.s = "hello world!";
 	t2.s = t1.s;
 
+	int i1;
+	int i2;
+	int i3;
+
+	float f1;
+	float f2;
+	float f3;
+	float f4;
+
+	i1 = t2.i - t1.i;
+	i2 = t2.i / 2;
+	i3 = t2.i * t1.i;
+	f1 = t1.f + t2.f;
+	f2 = t1.f - t2.f - 5.1;
+	f3 = t2.f / 2.4;
+	f4 = t1.f * 5.2;
+
 	print(t2.i);
 	printchar(t2.c);
 	printf(t2.f);
 	printstr(t2.s);
+
+	print(i1);
+	print(i2);
+	print(i3);
+	printf(f1);
+	printf(f2);
+	printf(f3);
+	printf(f4);
 
 	return 0;
 }
