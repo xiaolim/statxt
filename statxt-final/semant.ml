@@ -137,7 +137,19 @@ let check (globals, functions, structs) =
       | Strlit l   -> (String, SStrlit l)
       | Charlit l  -> (Char, SCharlit l)
       | Structlit l -> (String, SStructlit l)
-      (*| Arraylit (eles, size) -> *)
+      | Arraylit (eles, size) -> let e1 = List.hd eles in
+      								let (ty, _) = expr e1 in
+      								let _ = match ty with
+	      								  Int -> ()
+	      								| Bool -> ()
+	      								| Float -> ()
+	      								| String -> ()
+	      								| Char -> ()
+	      								| _ -> raise(Failure ("no, stop it, why are you like this?"))
+      								in let _ = List.iter (fun a -> if (fst(expr a) = ty) then () else raise(Failure("stop it, get some help"))) eles
+      								in (Array (ty, (List.length eles)), SNoexpr)
+      									
+
       | Arraccess (s, exp) -> 
       	  (let _ = match (fst(expr exp)) with 
       	    Int -> Int
