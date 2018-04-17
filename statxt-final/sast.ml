@@ -10,6 +10,8 @@ and sx =
   | SStrlit of string
   | SBoolLit of bool
   | SStructlit of string
+  | SArraylit of sexpr list * int (* list of expressions and size of array *)
+  | SArraccess of string * sexpr
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
@@ -53,7 +55,9 @@ let rec string_of_sexpr (t, e) =
   | SStrlit(l) -> l
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
-  | SStructlit(l) -> "Struct " ^ l
+  | SStructlit(l) -> "struct " ^ l
+  | SArraylit(exp, i) -> "[" ^ String.concat ", " (List.map string_of_sexpr exp) ^ "] (length: " ^ (string_of_int i) ^ ")"
+  | SArraccess(s, exp) -> s ^ "[" ^ (string_of_sexpr exp) ^ "]"
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
@@ -79,19 +83,19 @@ let rec string_of_sstmt = function
       string_of_sexpr e3  ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
 
-let string_of_sfdecl fdecl =
-  string_of_typ fdecl.styp ^ " " ^
-  fdecl.sfname ^ "(" ^ String.concat ", " (List.map snd fdecl.sformals) ^
+let string_of_sfdecl sfdecl =
+  string_of_typ sfdecl.styp ^ " " ^
+  sfdecl.sfname ^ "(" ^ String.concat ", " (List.map snd sfdecl.sformals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.slocals) ^
-  String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
+  String.concat "" (List.map string_of_vdecl sfdecl.slocals) ^
+  String.concat "" (List.map string_of_sstmt sfdecl.sbody) ^
   "}\n"
 
-(*let string_of_ssdecl sdecl =
+let string_of_ssdecl ssdecl =
   "struct" ^ " " ^ ssdecl.sname ^ "{\n" ^ 
-  String.concat "" (List.map string_of_vdecl ssdecl.members) ^ "};\n"*)
+  String.concat "" (List.map string_of_vdecl ssdecl.members) ^ "};\n"
 
 let string_of_sprogram (vars, funcs, _) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_sfdecl funcs)
- (* String.concat "\n" (List.map string_of_ssdecl structs) *) (*fix this *)
+  String.concat "\n" (List.map string_of_sfdecl funcs) (* ^ *)
+  (* String.concat "\n" (List.map string_of_ssdecl struc) *) (*fix this shit *)

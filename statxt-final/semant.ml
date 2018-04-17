@@ -129,7 +129,6 @@ let check (globals, functions, structs) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
-
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         Intlit  l -> (Int, SIntlit l)
@@ -138,6 +137,16 @@ let check (globals, functions, structs) =
       | Strlit l   -> (String, SStrlit l)
       | Charlit l  -> (Char, SCharlit l)
       | Structlit l -> (String, SStructlit l)
+      (*| Arraylit (eles, size) -> *)
+      | Arraccess (s, exp) -> 
+      	  (let _ = match (fst(expr exp)) with 
+      	    Int -> Int
+      	  | _ -> raise(Failure ("accessing array with non-integer type")) in
+      	  	match (type_of_identifier s) with
+      	  	| Array(t, _) -> (t, SId s) (* if something breaks, this is the problem. returns tuple like string * a *)
+      	  	| _ -> raise(Failure ("trying to access a non-array type"))
+      	  )
+
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(e1, e2) as ex -> 

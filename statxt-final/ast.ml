@@ -18,11 +18,12 @@ type expr =
   | Structlit of string
   | Id of string
   | Arraylit of expr list * int (* list of expressions and size of array *)
+  | Arraccess of string * expr
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Assign of expr * expr
   | Sretrieve of expr * string
-  | Arrassign of string * int * expr
+(*  | Arrassign of string * int * expr *)
   | Call of string * expr list
   | Noexpr
 
@@ -78,13 +79,14 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | Structlit(l) -> "Struct " ^ l
   | Id(s) -> s
-  | Arraylit(exp, i) -> "|" ^ String.concat ", " (List.map string_of_expr exp) ^ "| (length: " ^ (string_of_int i) ^ ")"
+  | Arraylit(exp, i) -> "[" ^ String.concat ", " (List.map string_of_expr exp) ^ "] (length: " ^ (string_of_int i) ^ ")"
+  | Arraccess(s, exp) -> s ^ "[" ^ (string_of_expr exp) ^ "]"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
   | Sretrieve(s, ele) -> string_of_expr s ^ "." ^ ele
-  | Arrassign(a, inx, e) -> a ^ "[" ^ (string_of_int inx) ^ "] = " ^ string_of_expr e
+ (* | Arrassign(a, inx, e) -> a ^ "[" ^ (string_of_int inx) ^ "] = " ^ string_of_expr e *)
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""

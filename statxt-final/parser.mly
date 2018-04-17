@@ -120,6 +120,7 @@ expr:
   | FLIT             { Fliteral($1)           }  
   | STRLIT           { Strlit($1)             }
   | ID               { Id($1)                 }
+  | ID LSQUARE expr RSQUARE { Arraccess($1, $3) }
   | LSQUARE array_list RSQUARE { Arraylit(List.rev $2, List.length $2) }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
@@ -138,7 +139,7 @@ expr:
   | expr ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
   | expr DOT ID 		 { Sretrieve ($1, $3)     }
-  | ID LSQUARE INTLIT RSQUARE ASSIGN expr { Arrassign($1, $3, $6) }
+ /* | ID LSQUARE expr RSQUARE ASSIGN expr { Arrassign($1, $3, $6) } */
   | LPAREN expr RPAREN { $2                   }
 
 args_opt:
