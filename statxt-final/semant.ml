@@ -145,11 +145,9 @@ let check (globals, functions, structs) =
 	      								| Float -> ()
 	      								| String -> ()
 	      								| Char -> ()
-	      								| _ -> raise(Failure ("no, stop it, why are you like this?"))
-      								in let _ = List.iter (fun a -> if (fst(expr a) = ty) then () else raise(Failure("stop it, get some help"))) eles
-      								in (Array (ty, (List.length eles)), SNoexpr)
-      									
-
+	      								| _ -> raise(Failure ("type not allowed in array"))
+      								in let _ = List.iter (fun a -> if (fst(expr a) = ty) then () else raise(Failure("type mismatch"))) eles
+      								in (Array (ty, size(*(List.length eles)*)), SNoexpr) (*not sure about the SNoexpr*)
       | Arraccess (s, exp) -> 
       	  (let _ = match (fst(expr exp)) with 
       	    Int -> Int
@@ -158,7 +156,6 @@ let check (globals, functions, structs) =
       	  	| Array(t, _) -> (t, SId s) (* if something breaks, this is the problem. returns tuple like string * a *)
       	  	| _ -> raise(Failure ("trying to access a non-array type"))
       	  )
-
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(e1, e2) as ex -> 
