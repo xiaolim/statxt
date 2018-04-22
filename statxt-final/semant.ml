@@ -150,13 +150,13 @@ let check (globals, functions, structs) =
       								in let seles = List.map expr eles
       								in (Array (ty, size(*(List.length eles)*)), SArraylit(seles, size)) (*not sure about the SNoexpr*)
       | Arraccess (s, exp) -> 
-      	  (let _ = match (fst(expr exp)) with 
-      	    Int -> Int
-      	  | _ -> raise(Failure ("accessing array with non-integer type")) in
-      	  	match (type_of_identifier s) with
-      	  	| Array(t, _) -> (t, SId s) (* if something breaks, this is the problem. returns tuple like string * a *)
-      	  	| _ -> raise(Failure ("trying to access a non-array type"))
-      	  )
+      	  let t = let _ = match (fst(expr exp)) with 
+      	  	   Int -> Int
+      	 	 | _ -> raise(Failure ("accessing array with non-integer type")) in
+	      	  	match (type_of_identifier s) with
+	      	  	  Array(t, _) -> t (* if something breaks, this is the problem. returns tuple like string * a *)
+	      	  	| _ -> raise(Failure ("trying to access a non-array type"))
+	      in (t, SArraccess(s, (expr exp)))
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(e1, e2) as ex -> 
