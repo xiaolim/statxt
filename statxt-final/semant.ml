@@ -147,7 +147,8 @@ let check (globals, functions, structs) =
 	      								| Char -> ()
 	      								| _ -> raise(Failure ("type not allowed in array"))
       								in let _ = List.iter (fun a -> if (fst(expr a) = ty) then () else raise(Failure("type mismatch"))) eles
-      								in (Array (ty, size(*(List.length eles)*)), SNoexpr) (*not sure about the SNoexpr*)
+      								in let seles = List.map expr eles
+      								in (Array (ty, size(*(List.length eles)*)), SArraylit(seles, size)) (*not sure about the SNoexpr*)
       | Arraccess (s, exp) -> 
       	  (let _ = match (fst(expr exp)) with 
       	    Int -> Int

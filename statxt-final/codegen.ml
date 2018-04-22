@@ -165,6 +165,7 @@ let translate (globals, functions, structs) =
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
 			| SStructlit s -> lookup s
+			(*| SArraylit a -> *)
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
