@@ -165,7 +165,26 @@ let translate (globals, functions, structs) =
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
 			| SStructlit s -> lookup s
-			(*| SArraylit a -> *)
+			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
+											let () = print_endline (L.string_of_lltype ltype_of_arr) in
+											let lsize = L.const_int i32_t size in
+											let () = print_endline (L.string_of_llvalue lsize) in
+											let errthang = List.map (fun x -> expr builder x) sexprs in
+											let () = List.iter print_endline (List.map string_of_sexpr sexprs) in
+											let this_array = L.build_array_malloc ltype_of_arr lsize "tmp" builder in
+											let () = print_endline ("this_array: " ^ (L.string_of_llvalue this_array)) in
+											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
+											let index_list = range 0 size in
+											let () = List.iter print_endline (List.map string_of_int index_list) in
+											List.iter (fun x ->
+												let where = (L.build_gep this_array [| L.const_int i32_t x |] "tmp2" builder) in
+												let () = print_endline ("where: " ^ (L.string_of_llvalue where)) in
+												let what = List.nth errthang x in
+												let () = print_endline ("what: " ^ (L.string_of_llvalue what)) in
+												ignore (L.build_store what where builder)
+											) index_list;
+
+											raise(Failure "boogers")
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
