@@ -30,6 +30,7 @@ let translate (globals, functions, structs) =
 	and float_t    = L.double_type context
 	and void_t     = L.void_type   context 
 	and p_t        = L.pointer_type (L.i8_type (context))
+	(* and array_t    = L.array_type  context *)
 	(* Create an LLVM module -- this is a "container" into which we'll 
 	   generate actual code *)
 	and the_module = L.create_module context "Statxt" in
@@ -46,7 +47,7 @@ let translate (globals, functions, structs) =
 		with Not_found -> raise(Failure("struct " ^ ssname ^ " not found"))
 	in 
 	(* Convert MicroC types to LLVM types *)
-	let ltype_of_typ = function
+	let rec ltype_of_typ = function
 		  A.Int    -> i32_t
 		| A.Bool   -> i1_t
 		| A.Float  -> float_t
@@ -54,6 +55,7 @@ let translate (globals, functions, structs) =
 		| A.String -> p_t
 		| A.Char   -> i8_t
 		| A.Struct(ssname) -> lookup_struct_type ssname
+		| A.Array(typ, size) -> L.array_type (ltype_of_typ typ) size
 		| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))
 	in
 
@@ -159,7 +161,7 @@ let translate (globals, functions, structs) =
 
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
-			  SIntlit i -> L.const_int i32_t i
+			  SIntlit i -> L.const_int i32_t i 
 			| SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
 			| SFliteral l -> L.const_float_of_string float_t l
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
@@ -171,7 +173,7 @@ let translate (globals, functions, structs) =
 											let () = print_endline (L.string_of_llvalue lsize) in
 											let errthang = List.map (fun x -> expr builder x) sexprs in
 											let () = List.iter print_endline (List.map string_of_sexpr sexprs) in
-											let this_array = L.build_array_malloc ltype_of_arr lsize "tmp" builder in
+											let this_array = L.build_array_alloca ltype_of_arr lsize "tmp" builder in
 											let () = print_endline ("this_array: " ^ (L.string_of_llvalue this_array)) in
 											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
 											let index_list = range 0 size in
@@ -182,9 +184,34 @@ let translate (globals, functions, structs) =
 												let what = List.nth errthang x in
 												let () = print_endline ("what: " ^ (L.string_of_llvalue what)) in
 												ignore (L.build_store what where builder)
-											) index_list;
+											) index_list; L.build_load this_array "tmp3" builder
 
-											raise(Failure "boogers")
+											(* raise(Failure "boogers") *)
+			| SArraccess(s, exp) ->
+				let array_llvalue = lookup s in
+				let () = print_endline ("array_llvalue: " ^ (L.string_of_llvalue array_llvalue)) in
+				(*let something = L.build_in_bounds_gep array_llvalue [| (expr builder exp) |] "tmp" builder in
+				let () = print_endline ("something: " ^ (L.string_of_llvalue something)) in*)
+				let something_else = L.build_struct_gep array_llvalue 0 "tmp3" builder in (*fix the 0 with correct index*)
+				let () = print_endline ("something_else: " ^ (L.string_of_llvalue something_else)) in
+				let array_load = L.build_load something_else "tmp2" builder in
+				let () = print_endline ("array_load: " ^ (L.string_of_llvalue array_load)) in
+				array_load
+
+
+
+				(*let built_e = expr builder s in
+				let built_e_lltype = L.type_of built_e in
+				let built_e_opt = L.struct_name built_e_lltype in
+				let built_e_name = (match built_e_opt with 
+										  None -> ""
+										| Some(s) -> s)
+				in 
+				let indices = StringMap.find built_e_name struct_element_index in
+				let index = StringMap.find element indices in
+				let access_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
+					L.build_load access_llvalue "tmp" builder*)
+
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
@@ -207,7 +234,8 @@ let translate (globals, functions, structs) =
 																	access_llvalue
 																| _ -> raise (Failure("not found"))
 															with Not_found -> raise (Failure(s ^ "not found")))
-														| _ -> raise (Failure("lhs not found")))    
+														| _ -> raise (Failure("lhs not found")))
+												| (_, SArraccess (s, exp)) -> raise(Failure("asdf"))
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
