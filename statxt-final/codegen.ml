@@ -36,7 +36,7 @@ let translate (globals, functions, structs) =
 	and the_module = L.create_module context "Statxt" in
 
 	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
-	let ocaml_global_vars = Hashtbl.create 108 in
+	(*let ocaml_global_vars = Hashtbl.create 108 in*)
 	let ocaml_local_vars = Hashtbl.create 108 in
 
 	let make_struct_type sdecl =
@@ -57,7 +57,7 @@ let translate (globals, functions, structs) =
 		| A.Char   -> i8_t
 		| A.Struct(ssname) -> lookup_struct_type ssname
 		| A.Array(typ, size) -> L.array_type (ltype_of_typ typ) size
-		| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))
+		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
 
 
@@ -167,13 +167,14 @@ let translate (globals, functions, structs) =
 					A.Int -> thing
 					| _ -> raise(Failure("ID is not of type int") *)
 			| SBinop (e1, op, e2) ->
-				let e1' = getinx e1
+				(let e1' = getinx e1
 				and e2' = getinx e2 in
 				match op with
 					  A.Add     -> e1' + e2'
 					| A.Sub     -> e1' - e2'
 					| A.Mult    -> e1' * e2'
 					| A.Div     -> e1' / e2'
+					| _ -> raise(Failure("invalid binop")))
 			(*| SUnop of uop * sexpr
 			| SSretrieve of sexpr * string
 			| SCall of string * sexpr listfs*)
