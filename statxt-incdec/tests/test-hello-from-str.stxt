@@ -1,0 +1,14 @@
+int main()
+{
+	string x;
+	x = "Hello World";
+
+	int i;
+	i = 1;
+
+	i++; 
+
+	print(i);
+
+	return 0;
+}
