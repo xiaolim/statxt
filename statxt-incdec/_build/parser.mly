@@ -29,6 +29,7 @@ let trd (_,_,c) = c;;
 %right ASSIGN
 %left OR
 %left AND
+%left DECREMENT INCREMENT
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
@@ -108,9 +109,6 @@ stmt:
 expr_opt:
     /* nothing */ { Noexpr }
   | expr          { $1 }
-
-id: 
-  ID              { ID($1) }
 
 array_list:
     expr { $1 :: [] }
