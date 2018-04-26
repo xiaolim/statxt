@@ -166,7 +166,7 @@ let translate (globals, functions, structs) =
 				match thing with
 					A.Int -> thing
 					| _ -> raise(Failure("ID is not of type int") *)
-			| SBinop (e1, op, e2) ->build_store e2' e1' 
+			| SBinop (e1, op, e2) ->
 				let e1' = getinx e1
 				and e2' = getinx e2 in
 				match op with
@@ -242,8 +242,10 @@ let translate (globals, functions, structs) =
 														  (_, SId s) ->
 															let etype = fst( 
 																let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+																let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 																try List.find (fun n -> snd(n) = s) fdecl_locals
-																with Not_found -> raise (Failure("Unable to find" ^ s )))
+																with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
+																	with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 															in
 															(try match etype with
 																  A.Struct t->
@@ -275,8 +277,10 @@ let translate (globals, functions, structs) =
 					  (_, SId s) ->
 						let etype = fst( 
 							let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+							let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 							try List.find (fun n -> snd(n) = s) fdecl_locals
-							with Not_found -> raise (Failure("Unable to find" ^ s )))
+							with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
+								with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 						in
 						(try match etype with
 							  A.Struct _ ->
