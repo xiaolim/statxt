@@ -207,7 +207,7 @@ let check (globals, functions, structs) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
-      | _ -> raise (Failure ("not implemented yet"))
+    (*  | _ -> raise (Failure ("not implemented yet")) *)
     in
 
     let check_bool_expr e = 

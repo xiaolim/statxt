@@ -35,8 +35,9 @@ let translate (globals, functions, structs) =
 	   generate actual code *)
 	and the_module = L.create_module context "Statxt" in
 
-	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8
-	in 
+	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
+	(*let ocaml_global_vars = Hashtbl.create 108 in*)
+	let ocaml_local_vars = Hashtbl.create 108 in
 
 	let make_struct_type sdecl =
 		let struct_t = L.named_struct_type context sdecl.ssname in
@@ -56,7 +57,7 @@ let translate (globals, functions, structs) =
 		| A.Char   -> i8_t
 		| A.Struct(ssname) -> lookup_struct_type ssname
 		| A.Array(typ, size) -> L.array_type (ltype_of_typ typ) size
-		| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))
+		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
 
 
@@ -138,14 +139,14 @@ let translate (globals, functions, structs) =
 			let () = L.set_value_name n p in
 			let local = L.build_alloca (ltype_of_typ t) n builder in
 			let _  = L.build_store p local builder in
-			StringMap.add n local m 
+			Hashtbl.add ocaml_local_vars n t; StringMap.add n local m 
 		in
 
 		(* Allocate space for any locally declared variables and add the
 		 * resulting registers to our map *)
 		let add_local m (t, n) =
 			let local_var = L.build_alloca (ltype_of_typ t) n builder
-			in StringMap.add n local_var m 
+			in Hashtbl.add ocaml_local_vars n t; StringMap.add n local_var m 
 		in
 
 		let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -158,7 +159,27 @@ let translate (globals, functions, structs) =
 		let lookup n = try StringMap.find n local_vars
 			with Not_found -> StringMap.find n global_vars
 		in
-
+		let rec getinx inx = match (snd(inx)) with
+			  SIntlit i -> i
+			(*| SArraccess of string * sexpr *)
+			(*| SId s -> let thing = Hashtbl.find ocaml_local_vars s in 
+				match thing with
+					A.Int -> thing
+					| _ -> raise(Failure("ID is not of type int") *)
+			| SBinop (e1, op, e2) ->
+				(let e1' = getinx e1
+				and e2' = getinx e2 in
+				match op with
+					  A.Add     -> e1' + e2'
+					| A.Sub     -> e1' - e2'
+					| A.Mult    -> e1' * e2'
+					| A.Div     -> e1' / e2'
+					| _ -> raise(Failure("invalid binop")))
+			(*| SUnop of uop * sexpr
+			| SSretrieve of sexpr * string
+			| SCall of string * sexpr listfs*)
+			| _ -> raise(Failure("non-natural number index"))
+		in
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i 
@@ -189,13 +210,13 @@ let translate (globals, functions, structs) =
 											(* raise(Failure "boogers") *)
 			| SArraccess(s, exp) ->
 				let array_llvalue = lookup s in
-				let () = print_endline ("array_llvalue: " ^ (L.string_of_llvalue array_llvalue)) in
+				(*let () = print_endline ("array_llvalue: " ^ (L.string_of_llvalue array_llvalue)) in*)
 				(*let something = L.build_in_bounds_gep array_llvalue [| (expr builder exp) |] "tmp" builder in
 				let () = print_endline ("something: " ^ (L.string_of_llvalue something)) in*)
-				let something_else = L.build_struct_gep array_llvalue 0 "tmp3" builder in (*fix the 0 with correct index*)
-				let () = print_endline ("something_else: " ^ (L.string_of_llvalue something_else)) in
+				let something_else = L.build_struct_gep array_llvalue (getinx exp) "tmp3" builder in (*fix the 0 with correct index*)
+				(*let () = print_endline ("something_else: " ^ (L.string_of_llvalue something_else)) in*)
 				let array_load = L.build_load something_else "tmp2" builder in
-				let () = print_endline ("array_load: " ^ (L.string_of_llvalue array_load)) in
+				(*let () = print_endline ("array_load: " ^ (L.string_of_llvalue array_load)) in*)
 				array_load
 
 
@@ -222,8 +243,10 @@ let translate (globals, functions, structs) =
 														  (_, SId s) ->
 															let etype = fst( 
 																let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+																let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 																try List.find (fun n -> snd(n) = s) fdecl_locals
-																with Not_found -> raise (Failure("Unable to find" ^ s )))
+																with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
+																	with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 															in
 															(try match etype with
 																  A.Struct t->
@@ -235,7 +258,16 @@ let translate (globals, functions, structs) =
 																| _ -> raise (Failure("not found"))
 															with Not_found -> raise (Failure(s ^ "not found")))
 														| _ -> raise (Failure("lhs not found")))
-												| (_, SArraccess (s, exp)) -> raise(Failure("asdf"))
+												| (_, SArraccess (s, exp)) -> 	let array_llvalue = lookup s in
+																				(*let () = print_endline ("array_llvalue: " ^ (L.string_of_llvalue array_llvalue)) in *)
+																				(*let something = L.build_in_bounds_gep array_llvalue [| (expr builder exp) |] "tmp" builder in
+																				let () = print_endline ("something: " ^ (L.string_of_llvalue something)) in*)
+																				let something_else = L.build_struct_gep array_llvalue (getinx exp) "tmp3" builder in (*fix the 0 with correct index*)
+																				(*let () = print_endline ("something_else: " ^ (L.string_of_llvalue something_else)) in *)
+																				(*let array_load = L.build_load something_else "tmp2" builder in
+																				let () = print_endline ("array_load: " ^ (L.string_of_llvalue array_load)) in
+																				array_load *)
+																				something_else
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
@@ -246,8 +278,10 @@ let translate (globals, functions, structs) =
 					  (_, SId s) ->
 						let etype = fst( 
 							let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+							let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 							try List.find (fun n -> snd(n) = s) fdecl_locals
-							with Not_found -> raise (Failure("Unable to find" ^ s )))
+							with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
+								with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 						in
 						(try match etype with
 							  A.Struct _ ->
