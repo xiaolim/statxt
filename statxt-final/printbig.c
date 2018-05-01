@@ -3,7 +3,8 @@
  */
 
 #include <stdio.h>
-
+#include <string.h>
+#include <stdlib.h>
 /*
  * Font information: one byte per row, 8 rows per character
  * In order, space, 0-9, A-Z
@@ -64,6 +65,9 @@ void printbig(int c)
   } while (index & 0x7); 
 }
 
+char strget(char*c, int n){
+    return c[n];
+}
 
 #ifdef BUILD_TEST
 int main()
