@@ -66,6 +66,9 @@ void printbig(int c)
   } while (index & 0x7); 
 }
 
+char strget(char*c, int n){
+    return c[n];
+}
 
 #ifdef BUILD_TEST
 int main()
