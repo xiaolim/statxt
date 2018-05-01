@@ -1,12 +1,14 @@
 struct book {
 	string title;
 	string author;
+	
 };
-
-int f(struct book b){
+struct book f(struct book b){
 	printstr(b.title);
 
-	return 1;
+	b.title = "adf";
+
+	return b;
 }
 
 int main() {
@@ -15,7 +17,13 @@ int main() {
 	b1.author = "JK Rowling";
 
 	int i;
-	i = f(b1);
+	i = 1;
+	b1 = f(b1);
+
+
+	printstr(b1.title);
+
+	i = strlen(b1.title);
 
 	print(i);
 

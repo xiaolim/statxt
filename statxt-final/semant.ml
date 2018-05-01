@@ -68,20 +68,31 @@ let check (globals, functions, structs) =
   (**** Checking Functions ****)
 
   (* Collect function declarations for built-in functions: no bodies *)
-  let built_in_decls = 
-    let add_bind map (name, ty) = StringMap.add name {
-      typ = Void; fname = name; 
-      formals = [(ty, "x")];
+  let built_in_decls =   
+    let add_bind map (name, typ, forms) = StringMap.add name {
+      typ = typ; fname = name; 
+      formals = forms;
       locals = []; body = [] } map
-    in List.fold_left add_bind StringMap.empty [ ("print", Int);
-			                         ("printb", Bool);
-			                         ("printstr", String);
-                               ("printchar", Char);
-			                         ("printf", Float);
-			                         ("printbig", Int) ]
+    in List.fold_left add_bind StringMap.empty [ ("print", Void, [(Int, "x")]);
+			                         ("printb", Void, [(Bool, "x")]);
+			                         ("printstr", Void, [(String, "x")]);
+                               ("printchar", Void, [(Char, "x")]);
+			                         ("printf", Void, [(Float, "x")]);
+			                         ("printbig", Void, [(Int, "x")]);
+                               ("strlen", Int, [(String, "x")]);
+                               ("strcmp", Int, [(String, "x"); (String, "x")]);
+                               (*("strcat", String, [(String, "x"); (String, "x")]);*)
+                               ("strget", Char, [(String, "x"); (Int, "y")]);
+                               ("to_lower", Char, [(Char, "x")]);
+                               ("open", String, [(String, "x"); (String, "x")]);
+                               ("close", Void, [(String, "x")]);
+                               ("read", Int, [(String, "x"); (Int, "x"); (String, "x")]);
+                               ("write", Int, [(String, "x"); (String, "x")]);
+                               ]     
+
+                               (*StringMap.add "strlen" { 
+    typ = Int; fname = "strlen"; formals = [(Int, "x")]; locals = []; body = [] }*)
   in
-
-
 
   (* Add function name to symbol table *)
   let add_func map fd = 

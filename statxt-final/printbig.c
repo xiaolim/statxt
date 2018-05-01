@@ -3,6 +3,8 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  * Font information: one byte per row, 8 rows per character
@@ -69,6 +71,7 @@ void printbig(int c)
 int main()
 {
   char s[] = "HELLO WORLD09AZ";
+  int i = strlen(s);
   char *c;
   for ( c = s ; *c ; c++) printbig(*c);
 }
