@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /*
  * Font information: one byte per row, 8 rows per character
@@ -66,9 +67,21 @@ void printbig(int c)
   } while (index & 0x7); 
 }
 
-char strget(char*c, int n){
+char strget(char* c, int n){
     return c[n];
 }
+
+char* char_lower(char* c) {
+    int l;
+    l = strlen(c);
+    printf("%d\n", l);
+    for (int i = 0; i < strlen(c); i++) {
+      printf("%d\n", i);
+      c[i] = tolower(c[i]);
+    }
+    return c;
+}
+
 
 #ifdef BUILD_TEST
 int main()

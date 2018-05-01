@@ -144,7 +144,7 @@ let translate (globals, functions, structs) =
   	let strget_func = L.declare_function "strget" strget_t the_module in
 
   	(* Declare c code as string_lower() *)
-  	let to_lower_t = L.function_type i8_t [| i8_t |] in 
+  	let to_lower_t = L.function_type p_t [| p_t |] in 
   	let to_lower_func = L.declare_function "char_lower" to_lower_t the_module in
 
 	let printbig_t = L.function_type i32_t [| i32_t |] in

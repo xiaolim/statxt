@@ -83,7 +83,7 @@ let check (globals, functions, structs) =
                                ("strcmp", Int, [(String, "x"); (String, "x")]);
                                (*("strcat", String, [(String, "x"); (String, "x")]);*)
                                ("strget", Char, [(String, "x"); (Int, "y")]);
-                               ("to_lower", Char, [(Char, "x")]);
+                               ("to_lower", String, [(String, "x")]);
                                ("open", String, [(String, "x"); (String, "x")]);
                                ("close", Void, [(String, "x")]);
                                ("read", Int, [(String, "x"); (Int, "x"); (String, "x")]);

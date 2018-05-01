@@ -1,13 +1,18 @@
 int main() {
-	string s;
-	s = "hello world";
-	string s1;
-	s1 = "HELLO";
-	string s2;
-	s2 = "world";
+	string [5] a;
+	a[1] = "hello";
+	string str;
+	str = a[1];
 
 	
-
+/*	
+	for (i = 0; i < strlen(s1); i++) {
+		c = strget(s1, i);
+		v = to_lower(c);
+		printchar(c);
+		printchar(v);
+	}
+*/	
 
 /*
 	int i;
