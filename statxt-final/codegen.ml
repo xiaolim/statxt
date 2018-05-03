@@ -109,7 +109,7 @@ let translate (globals, functions, structs) =
 
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
-  	let open_func = L.declare_function "fopen" open_t the_module in
+  	let open_func = L.declare_function "file_open" open_t the_module in
 
   	(* Declare the built-in close() function *)
   	let close_t = L.function_type i32_t [| p_t |] in
@@ -121,7 +121,7 @@ let translate (globals, functions, structs) =
 
   	(* Declare the built-in fread() function as read() *)
   	let read_t = L.function_type i32_t [| p_t; i32_t; i32_t; p_t |] in 
-  	let read_func = L.declare_function "fread" read_t the_module in
+  	let read_func = L.declare_function "read_file" read_t the_module in
 
   	(* Declare the built-in strlen() function  *)
   	let strlen_t = L.function_type i32_t [| p_t |] in 
@@ -388,11 +388,11 @@ let translate (globals, functions, structs) =
 				L.build_call printf_func [| float_format_str ; (expr builder e) |]
 					"printf" builder
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call open_func (Array.of_list x) "fopen" builder
+            	L.build_call open_func (Array.of_list x) "file_open" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call close_func (Array.of_list x) "fclose" builder
       	 	| SCall ("read", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call read_func (Array.of_list x) "fread" builder
+            	L.build_call read_func (Array.of_list x) "read_file" builder
       		| SCall("write", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call write_func (Array.of_list x) "fputs" builder
       		| SCall("strlen", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in

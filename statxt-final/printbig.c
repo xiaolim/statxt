@@ -72,31 +72,44 @@ char strget(char* c, int n)
     return c[n];
 }
 
-char* string_lower(char* s)
-{
+char* string_lower(char* s) {
   int l;
   l = strlen(s);
   char* temp = calloc(l+1, sizeof(char));
-  for (int i = 0; i < l; i++) {
+  int i;
+  for (i = 0; i < l; i++) {
     temp[i] = tolower(s[i]);
   }
   temp[l] = 0;
   return temp;
 }
 
-/*int read_file(char* fd, int size, int)
-{
+char* file_open(char* filename, char* mode) {
+  FILE* fd = fopen(filename, mode);
+  printf("%c\n", getc(fd));
+  return ((char*) fd);
 
-}*/
+
+}
+int read_file(char* ptr, int size, int len, char* fd_s) {
+  FILE* fd = (FILE*)fd_s;
+  int i;
+
+  void* ptr1 = calloc(len,size+1);
+  i = fread(ptr1, size, len, fd);
+  printf("%s", ((char*)ptr1));
+  return i;
+}
 
 char* str_concat(char* s1, char* s2){
   int l1 = strlen(s1);
   int l2 = strlen(s2);
   char* temp = calloc(l1+l2+1, sizeof(char));
-  for (int i = 0; i < l1; i++) {
+  int i;
+  for (i = 0; i < l1; i++) {
     temp[i] = s1[i];
   }
-  for (int i = l1; i < l1+l2; i++) {
+  for (i = l1; i < l1+l2; i++) {
     temp[i] = s2[i-l1];
   }
   temp[l1+l2] = 0;

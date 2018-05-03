@@ -5,13 +5,15 @@ int main() {
 	fd = open(filename, "rb");
 	string read_data;
 	read_data =	calloc(1,1);
-	/*read(read_data,1,1,fd);
-	printstr(read_data);*/
+	string ret_str;
+	int i;
+	/*i = read(read_data,1,1,fd); */
 
 
 
 
 
+ 
 
 
 /* test for strcat + free
