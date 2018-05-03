@@ -87,15 +87,16 @@ Check() {
     reffile=`echo $1 | sed 's/.stxt$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
-    echo ""
-    echo -n $count ": $basename..."
+    #echo ""
+    printf "%03d" $count
+    printf ": $basename..."
 
-    echo 1>&2
-    echo "###### Testing $basename" 1>&2
+    #echo 1>&2
+    #echo "###### Testing $basename" 1>&2
 
-    echo ""
-    echo "expected in .out:"
-    Run "cat ${reffile}.out"
+    #echo ""
+    #echo "expected in .out:"
+    #Run "cat ${reffile}.out"
 
     generatedfiles=""
 
@@ -107,18 +108,22 @@ Check() {
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files
-    echo "actual output: "
-    Run "./${basename}.exe"
+    #echo "actual output: "
+    #Run "./${basename}.exe"
 
 
     if [ $error -eq 0 ] ; then
 	if [ $keep -eq 0 ] ; then
 	    rm -f $generatedfiles
 	fi
-	echo "OK: " $count
+	echo "OK:" $count
 	echo "###### SUCCESS" 1>&2
     else
 	echo "###### FAILED" 1>&2
+    echo "output: "
+    Run "./${basename}.exe"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FAILED"
+    echo ""
 	globalerror=$error
     fi
 }
@@ -131,11 +136,13 @@ CheckFail() {
     reffile=`echo $1 | sed 's/.stxt$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
-    echo ""
-    echo -n $count ": $basename..."
+    #echo ""
+    #echo -n $count ": $basename..."
+    printf "%03d" $count
+    printf ": $basename..."
 
-    echo 1>&2
-    echo "###### Testing $basename" 1>&2
+    #echo 1>&2
+    #echo "###### Testing $basename" 1>&2
 
     generatedfiles=""
 
