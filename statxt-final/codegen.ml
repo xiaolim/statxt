@@ -199,6 +199,7 @@ let translate (globals, functions, structs) =
 		let lookup n = try StringMap.find n local_vars
 			with Not_found -> StringMap.find n global_vars
 		in
+		(*
 		let rec getinx inx = match (snd(inx)) with
 			  SIntlit i -> i
 			(*| SArraccess of string * sexpr *)
@@ -219,7 +220,7 @@ let translate (globals, functions, structs) =
 			| SSretrieve of sexpr * string
 			| SCall of string * sexpr listfs*)
 			| _ -> raise(Failure("non-natural number index"))
-		in
+		in *)
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i 
@@ -250,29 +251,9 @@ let translate (globals, functions, structs) =
 											(* raise(Failure "boogers") *)
 			| SArraccess(s, exp) ->
 				let array_llvalue = lookup s in
-				(*let () = print_endline ("array_llvalue: " ^ (L.string_of_llvalue array_llvalue)) in*)
-				(*let something = L.build_in_bounds_gep array_llvalue [| (expr builder exp) |] "tmp" builder in
-				let () = print_endline ("something: " ^ (L.string_of_llvalue something)) in*)
-				let something_else = L.build_struct_gep array_llvalue (getinx exp) "tmp3" builder in (*fix the 0 with correct index*)
-				(*let () = print_endline ("something_else: " ^ (L.string_of_llvalue something_else)) in*)
-				let array_load = L.build_load something_else "tmp2" builder in
-				(*let () = print_endline ("array_load: " ^ (L.string_of_llvalue array_load)) in*)
+				let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+				let array_load = L.build_load something "tmp2" builder in
 				array_load
-
-
-
-				(*let built_e = expr builder s in
-				let built_e_lltype = L.type_of built_e in
-				let built_e_opt = L.struct_name built_e_lltype in
-				let built_e_name = (match built_e_opt with 
-										  None -> ""
-										| Some(s) -> s)
-				in 
-				let indices = StringMap.find built_e_name struct_element_index in
-				let index = StringMap.find element indices in
-				let access_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
-					L.build_load access_llvalue "tmp" builder*)
-
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
@@ -299,15 +280,8 @@ let translate (globals, functions, structs) =
 															with Not_found -> raise (Failure(s ^ "not found")))
 														| _ -> raise (Failure("lhs not found")))
 												| (_, SArraccess (s, exp)) -> 	let array_llvalue = lookup s in
-																				(*let () = print_endline ("array_llvalue: " ^ (L.string_of_llvalue array_llvalue)) in *)
-																				(*let something = L.build_in_bounds_gep array_llvalue [| (expr builder exp) |] "tmp" builder in
-																				let () = print_endline ("something: " ^ (L.string_of_llvalue something)) in*)
-																				let something_else = L.build_struct_gep array_llvalue (getinx exp) "tmp3" builder in (*fix the 0 with correct index*)
-																				(*let () = print_endline ("something_else: " ^ (L.string_of_llvalue something_else)) in *)
-																				(*let array_load = L.build_load something_else "tmp2" builder in
-																				let () = print_endline ("array_load: " ^ (L.string_of_llvalue array_load)) in
-																				array_load *)
-																				something_else
+																				let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																				something
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
