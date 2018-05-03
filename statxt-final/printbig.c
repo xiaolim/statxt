@@ -67,11 +67,13 @@ void printbig(int c)
   } while (index & 0x7); 
 }
 
-char strget(char* c, int n){
+char strget(char* c, int n)
+{
     return c[n];
 }
 
-char* string_lower(char* s) {
+char* string_lower(char* s)
+{
   int l;
   l = strlen(s);
   char* temp = calloc(l+1, sizeof(char));
@@ -82,7 +84,10 @@ char* string_lower(char* s) {
   return temp;
 }
 
+/*int read_file(char* fd, int size, int)
+{
 
+}*/
 
 char* str_concat(char* s1, char* s2){
   int l1 = strlen(s1);

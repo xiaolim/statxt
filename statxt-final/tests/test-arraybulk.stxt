@@ -1,0 +1,41 @@
+int main() {
+	
+
+	int[3] a;
+
+
+	a = [3,2,4];
+
+
+	print(a[1]);
+
+
+	string[4] s;
+
+	s = ["hello", "world", "yay", "what"];
+
+	int i;
+
+	for (i = 0; i < a[2]; i++) {
+		printstr(s[i]);
+	}
+	
+	/*
+	define i32 @main() {
+	entry:
+	  %a = alloca [3 x i32]
+	  %tmp = alloca i32
+	  %tmp2 = getelementptr i32* %tmp, i32 0
+	  store i32 1, i32* %tmp2
+	  %tmp21 = getelementptr i32* %tmp, i32 1
+	  store i32 2, i32* %tmp21
+	  %tmp22 = getelementptr i32* %tmp, i32 2
+	  store i32 3, i32* %tmp22
+	  %tmp3 = load i32* %tmp
+	  ret i32 0
+	}
+
+
+
+	*/
+}
