@@ -85,11 +85,12 @@ let check (globals, functions, structs) =
                                ("strget", Char, [(String, "x"); (Int, "y")]);
                                ("lower", String, [(String, "x")]);
                                ("open", String, [(String, "x"); (String, "x")]);
-                               ("close", Void, [(String, "x")]);
+                               ("close", Int, [(String, "x")]);
                                ("read", Int, [(String, "x"); (Int, "x"); (Int, "x"); (String, "x")]);
-                               ("write", Int, [(String, "x"); (String, "x")]);
+                               ("write", Int, [(String, "x"); (Int, "x"); (Int, "x"); (String, "x")]);
                                ("calloc", String, [(Int, "x"); (Int, "y")]);
-                               ("free", String, [(String, "x")]);
+                               ("free", Int, [(String, "x")]);
+                               ("putstr", Int, [(String, "x"); (String, "x")]);
                                ]     
 
                                (*StringMap.add "strlen" { 

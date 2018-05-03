@@ -84,21 +84,32 @@ char* string_lower(char* s) {
   return temp;
 }
 
-char* file_open(char* filename, char* mode) {
-  FILE* fd = fopen(filename, mode);
-  printf("%c\n", getc(fd));
+char* open_file(char* filename, char* mode) {
+  FILE* fd = fopen(filename, mode); 
   return ((char*) fd);
-
-
 }
+
+int close_file(char* fd_s) {
+  return (fclose((FILE*)fd_s));
+}
+
 int read_file(char* ptr, int size, int len, char* fd_s) {
   FILE* fd = (FILE*)fd_s;
-  int i;
+  return (fread((void*)ptr, size, len, fd));
+}
 
-  void* ptr1 = calloc(len,size+1);
-  i = fread(ptr1, size, len, fd);
-  printf("%s", ((char*)ptr1));
+int write_file(char* ptr, int size, int len, char* fd_s) {
+  FILE* fd = (FILE*)fd_s;
+  int i;
+  
+  i = fwrite(ptr, size, len, fd);
+  fprintf(stderr, "%d\n",i);
   return i;
+}
+
+int put_in_file(char* ptr, char* fd_s) {
+  FILE* fd = (FILE*)fd_s;
+  return(fputs(ptr, fd));
 }
 
 char* str_concat(char* s1, char* s2){

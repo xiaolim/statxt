@@ -109,21 +109,25 @@ let translate (globals, functions, structs) =
 
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
-  	let open_func = L.declare_function "file_open" open_t the_module in
+  	let open_func = L.declare_function "open_file" open_t the_module in
 
   	(* Declare the built-in close() function *)
   	let close_t = L.function_type i32_t [| p_t |] in
-  	let close_func = L.declare_function "fclose" close_t the_module in
+  	let close_func = L.declare_function "close_file" close_t the_module in
    
   	(* Declare the built-in fputs() function as write() *)
-  	let write_t = L.function_type i32_t [| L.pointer_type i8_t; p_t |] in 
-  	let write_func = L.declare_function "fputs" write_t the_module in
+  	let write_t = L.function_type i32_t [| L.pointer_type i8_t; i32_t; i32_t; p_t |] in 
+  	let write_func = L.declare_function "write_file" write_t the_module in
 
-  	(* Declare the built-in fread() function as read() *)
+  	(* Declare the built-in read() function *)
   	let read_t = L.function_type i32_t [| p_t; i32_t; i32_t; p_t |] in 
   	let read_func = L.declare_function "read_file" read_t the_module in
 
-  	(* Declare the built-in strlen() function  *)
+	(* Declare the built-in putstr() function *)
+  	let putstr_t = L.function_type i32_t [| p_t; p_t |] in 
+  	let putstr_func = L.declare_function "put_in_file" putstr_t the_module in
+
+  	(* Declare the built-in strlen() function *)
   	let strlen_t = L.function_type i32_t [| p_t |] in 
   	let strlen_func = L.declare_function "strlen" strlen_t the_module in
 
@@ -135,15 +139,11 @@ let translate (globals, functions, structs) =
   	let strcat_t = L.function_type p_t [| p_t; p_t|] in 
   	let strcat_func = L.declare_function "str_concat" strcat_t the_module in
 
-  	(* Declare the built-in strcpy() function *)
-  	let strcpy_t = L.function_type p_t [| p_t; p_t|] in 
-  	let strcpy_func = L.declare_function "strcpy" strcpy_t the_module in
-
   	(* Declare the built-in strget() function *)
   	let strget_t = L.function_type i8_t [| p_t; i32_t|] in 
   	let strget_func = L.declare_function "strget" strget_t the_module in
 
-  	(* Declare c code as string_lower() *)
+  	(* Declare string_lower() function *)
   	let lower_t = L.function_type p_t [| p_t |] in 
   	let lower_func = L.declare_function "string_lower" lower_t the_module in
 
@@ -151,8 +151,8 @@ let translate (globals, functions, structs) =
     let calloc_t = L.function_type p_t [| i32_t ; i32_t|] in 
     let calloc_func = L.declare_function "calloc" calloc_t the_module in
 
-    (* Declare free from heap *)
-    let free_t = L.function_type p_t [| p_t |] in 
+    (* Declare free() from heap *)
+    let free_t = L.function_type i32_t [| p_t |] in 
     let free_func = L.declare_function "free" free_t the_module in
 
 	let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -388,11 +388,13 @@ let translate (globals, functions, structs) =
 				L.build_call printf_func [| float_format_str ; (expr builder e) |]
 					"printf" builder
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call open_func (Array.of_list x) "file_open" builder
+            	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call close_func (Array.of_list x) "fclose" builder
+            	L.build_call close_func (Array.of_list x) "close_file" builder
       	 	| SCall ("read", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call read_func (Array.of_list x) "read_file" builder
+            | SCall ("putstr", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call putstr_func (Array.of_list x) "put_in_file" builder
       		| SCall("write", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call write_func (Array.of_list x) "fputs" builder
       		| SCall("strlen", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
@@ -401,8 +403,6 @@ let translate (globals, functions, structs) =
             	L.build_call strcmp_func (Array.of_list x) "strcmp" builder
       		| SCall("strcat", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcat_func (Array.of_list x) "str_concat" builder
-      		| SCall("strcpy", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call strcpy_func (Array.of_list x) "strcpy" builder
       		| SCall("strget", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strget_func (Array.of_list x) "strget" builder
       		| SCall("lower", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
