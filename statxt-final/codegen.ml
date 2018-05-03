@@ -133,7 +133,7 @@ let translate (globals, functions, structs) =
 
   	(* Declare the built-in strcat() function *)
   	let strcat_t = L.function_type p_t [| p_t; p_t|] in 
-  	let strcat_func = L.declare_function "strcat" strcat_t the_module in
+  	let strcat_func = L.declare_function "str_concat" strcat_t the_module in
 
   	(* Declare the built-in strcpy() function *)
   	let strcpy_t = L.function_type p_t [| p_t; p_t|] in 
@@ -144,8 +144,16 @@ let translate (globals, functions, structs) =
   	let strget_func = L.declare_function "strget" strget_t the_module in
 
   	(* Declare c code as string_lower() *)
-  	let to_lower_t = L.function_type p_t [| p_t |] in 
-  	let to_lower_func = L.declare_function "char_lower" to_lower_t the_module in
+  	let lower_t = L.function_type p_t [| p_t |] in 
+  	let lower_func = L.declare_function "string_lower" lower_t the_module in
+
+    (* Declare heap storage function *)
+    let calloc_t = L.function_type p_t [| i32_t ; i32_t|] in 
+    let calloc_func = L.declare_function "calloc" calloc_t the_module in
+
+    (* Declare free from heap *)
+    let free_t = L.function_type p_t [| p_t |] in 
+    let free_func = L.declare_function "free" free_t the_module in
 
 	let printbig_t = L.function_type i32_t [| i32_t |] in
 	let printbig_func = L.declare_function "printbig" printbig_t the_module in
@@ -390,13 +398,17 @@ let translate (globals, functions, structs) =
       		| SCall("strcmp", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcmp_func (Array.of_list x) "strcmp" builder
       		| SCall("strcat", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call strcat_func (Array.of_list x) "strcat" builder
+            	L.build_call strcat_func (Array.of_list x) "str_concat" builder
       		| SCall("strcpy", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcpy_func (Array.of_list x) "strcpy" builder
       		| SCall("strget", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strget_func (Array.of_list x) "strget" builder
-      		| SCall("to_lower", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call to_lower_func (Array.of_list x) "char_lower" builder
+      		| SCall("lower", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call lower_func (Array.of_list x) "string_lower" builder
+			| SCall("calloc", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call calloc_func (Array.of_list x) "calloc" builder
+      		| SCall("free", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call free_func (Array.of_list x) "free" builder
 			| SCall (f, args) ->
 				let (fdef, fdecl) = StringMap.find f function_decls in
 				let llargs = List.rev (List.map (expr builder) (List.rev args)) in

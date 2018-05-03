@@ -71,24 +71,39 @@ char strget(char* c, int n){
     return c[n];
 }
 
-char* char_lower(char* c) {
-    int l;
-    l = strlen(c);
-    printf("%d\n", l);
-    for (int i = 0; i < strlen(c); i++) {
-      printf("%d\n", i);
-      c[i] = tolower(c[i]);
-    }
-    return c;
+char* string_lower(char* s) {
+  int l;
+  l = strlen(s);
+  char* temp = calloc(l+1, sizeof(char));
+  for (int i = 0; i < l; i++) {
+    temp[i] = tolower(s[i]);
+  }
+  temp[l] = 0;
+  return temp;
 }
 
+
+
+char* str_concat(char* s1, char* s2){
+  int l1 = strlen(s1);
+  int l2 = strlen(s2);
+  char* temp = calloc(l1+l2+1, sizeof(char));
+  for (int i = 0; i < l1; i++) {
+    temp[i] = s1[i];
+  }
+  for (int i = l1; i < l1+l2; i++) {
+    temp[i] = s2[i-l1];
+  }
+  temp[l1+l2] = 0;
+  return temp;
+}
 
 #ifdef BUILD_TEST
 int main()
 {
   char s[] = "HELLO WORLD09AZ";
   int i = strlen(s);
-  char *c;
+  char *c;int calloc()
   for ( c = s ; *c ; c++) printbig(*c);
 }
 #endif

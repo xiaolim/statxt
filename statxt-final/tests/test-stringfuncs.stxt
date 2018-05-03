@@ -1,16 +1,54 @@
 int main() {
-	string [5] a;
-	a[1] = "hello";
-	string str;
-	str = a[1];
+	string filename;
+	filename = "open-file-test.txt";
+	string fd;
+	fd = open(filename, "rb");
+	string read_data;
+	read_data =	calloc(1,1);
+	/*read(read_data,1,1,fd);
+	printstr(read_data);*/
 
-	
-/*	
+
+
+
+
+
+
+/* test for strcat + free
+	string str1;
+	str1 = "hello";
+	string str2;
+	str2 = "world";
+
+	string ret_str;
+	ret_str = strcat(str1, str2);
+	printstr(ret_str);
+	free(ret_str);
+	printstr(ret_str);
+
+*/
+
+
+/* test for lower function
+	string s1;
+	s1 = "HELLO";
+	string ret_str;
+	ret_str = lower(s1);
+	printstr(ret_str);
+
+*/
+
+
+/*
+	char c;
+	int i;
+	v = lower(c);
+
+
 	for (i = 0; i < strlen(s1); i++) {
 		c = strget(s1, i);
-		v = to_lower(c);
+		
 		printchar(c);
-		printchar(v);
 	}
 */	
 

@@ -81,13 +81,15 @@ let check (globals, functions, structs) =
 			                         ("printbig", Void, [(Int, "x")]);
                                ("strlen", Int, [(String, "x")]);
                                ("strcmp", Int, [(String, "x"); (String, "x")]);
-                               (*("strcat", String, [(String, "x"); (String, "x")]);*)
+                               ("strcat", String, [(String, "x"); (String, "x")]);
                                ("strget", Char, [(String, "x"); (Int, "y")]);
-                               ("to_lower", String, [(String, "x")]);
+                               ("lower", String, [(String, "x")]);
                                ("open", String, [(String, "x"); (String, "x")]);
                                ("close", Void, [(String, "x")]);
-                               ("read", Int, [(String, "x"); (Int, "x"); (String, "x")]);
+                               ("read", Int, [(String, "x"); (Int, "x"); (Int, "x"); (String, "x")]);
                                ("write", Int, [(String, "x"); (String, "x")]);
+                               ("calloc", String, [(Int, "x"); (Int, "y")]);
+                               ("free", String, [(String, "x")]);
                                ]     
 
                                (*StringMap.add "strlen" { 
