@@ -3,10 +3,11 @@ struct book {
 	string author;
 	
 };
+
 struct book f(struct book b){
 	printstr(b.title);
 
-	b.title = "adf";
+	b.title = "Sorcerer's Stone";
 
 	return b;
 }
