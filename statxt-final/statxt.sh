@@ -22,4 +22,3 @@ Run "$STATXT" "$1" ">" "${basename}.ll" &&
 Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
 Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
 Run "./${basename}.exe"
-

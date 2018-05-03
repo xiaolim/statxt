@@ -230,21 +230,23 @@ let translate (globals, functions, structs) =
 			| SCharlit c -> L.const_int i8_t (Char.code c)
 			| SStructlit s -> lookup s
 			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
-											let () = print_endline (L.string_of_lltype ltype_of_arr) in
-											let lsize = L.const_int i32_t size in
-											let () = print_endline (L.string_of_llvalue lsize) in
+											(*let () = print_endline (L.string_of_lltype ltype_of_arr) in*)
+											(*let lsize = L.const_int i32_t size in*)
+											(*let () = print_endline (L.string_of_llvalue lsize) in*)
 											let errthang = List.map (fun x -> expr builder x) sexprs in
-											let () = List.iter print_endline (List.map string_of_sexpr sexprs) in
-											let this_array = L.build_array_alloca ltype_of_arr lsize "tmp" builder in
-											let () = print_endline ("this_array: " ^ (L.string_of_llvalue this_array)) in
+											(*let () = List.iter print_endline (List.map string_of_sexpr sexprs) in*)
+											(*let this_array = L.build_array_alloca ltype_of_arr lsize "tmp" builder in*)
+											let this_array = L.build_alloca (L.array_type ltype_of_arr size) "tmp" builder in
+											(*let () = print_endline ("this_array: " ^ (L.string_of_llvalue this_array)) in*)
 											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
 											let index_list = range 0 size in
-											let () = List.iter print_endline (List.map string_of_int index_list) in
+											(*let () = List.iter print_endline (List.map string_of_int index_list) in*)
 											List.iter (fun x ->
-												let where = (L.build_gep this_array [| L.const_int i32_t x |] "tmp2" builder) in
-												let () = print_endline ("where: " ^ (L.string_of_llvalue where)) in
+												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp2" builder in
+												(*let () = print_endline ("where: " ^ (L.string_of_llvalue where)) in*)
 												let what = List.nth errthang x in
-												let () = print_endline ("what: " ^ (L.string_of_llvalue what)) in
+												(*let () = print_endline ("what: " ^ (L.string_of_llvalue what)) in
+												let () = print_endline ("a: " ^ (L.string_of_llvalue (lookup ("a") ))) in*)
 												ignore (L.build_store what where builder)
 											) index_list; L.build_load this_array "tmp3" builder
 

@@ -75,7 +75,8 @@ char* char_lower(char* c) {
     int l;
     l = strlen(c);
     printf("%d\n", l);
-    for (int i = 0; i < strlen(c); i++) {
+    int i;
+    for (i = 0; i < strlen(c); i++) {
       printf("%d\n", i);
       c[i] = tolower(c[i]);
     }
