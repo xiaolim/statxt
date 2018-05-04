@@ -91,7 +91,9 @@ let check (globals, functions, structs) =
                                ("calloc", String, [(Int, "x"); (Int, "y")]);
                                ("free", Int, [(String, "x")]);
                                ("putstr", Int, [(String, "x"); (String, "x")]);
-                               ("atoi", Int, [(String, "x")])
+                               ("atoi", Int, [(String, "x")]);
+                               ("isletter", Bool, [(Char, "x")]);
+                               ("strappend", Void, [(String, "x"); (Int, "x"); (Char, "x")])
                                ]     
 
                                (*StringMap.add "strlen" { 

@@ -1,4 +1,24 @@
 int main() {
+
+	string str1;
+	str1 = "hel*o#";
+	char c1;
+	char c2;
+	c1 = strget(str1, 1);
+	c2 = strget(str1, 3);
+	printchar(c1);
+	printchar(c2);
+	
+	bool b1;
+	bool b2;
+	b1 = isletter(c1);
+	b2 = isletter(c2);
+	printb(b1);
+	printb(b2);
+
+
+
+/* test for putstr
 	string filename;
 	filename = "/home/zel2109/Statxt/statxt-final/tests/open-file-test.txt";
 	string fd;
@@ -23,8 +43,7 @@ int main() {
 	read_err = read(read_data,1,200,fd); 
 	printstr(read_data);
 	err_close = close(fd);
-
-	
+*/
 
 
 

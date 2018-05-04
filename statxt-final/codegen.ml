@@ -101,7 +101,6 @@ let translate (globals, functions, structs) =
 		L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 	let printf_func : L.llvalue = 
 		L.declare_function "printf" printf_t the_module in
-
 	
 	(* Declare the built-in atoi() function *)
   	let atoi_t = L.function_type i32_t [| p_t |] in
@@ -155,8 +154,17 @@ let translate (globals, functions, structs) =
     let free_t = L.function_type i32_t [| p_t |] in 
     let free_func = L.declare_function "free" free_t the_module in
 
+    (* Declare print function *)
 	let printbig_t = L.function_type i32_t [| i32_t |] in
 	let printbig_func = L.declare_function "printbig" printbig_t the_module in
+
+	(* Declare isletter() function *)
+	let isvalid_t = L.function_type i1_t [| i8_t |] in
+	let isvalid_func = L.declare_function "is_valid_letter" isvalid_t the_module in
+
+	(* Declare strappend() function *)
+	let strappend_t = L.function_type void_t [| p_t; i32_t; i8_t |] in
+	let strappend_func = L.declare_function "string_append" strappend_t the_module in
 
 	(* Define each function (arguments and return type) so we can 
 	 * define it's body and call it later *)
@@ -207,28 +215,7 @@ let translate (globals, functions, structs) =
 		let lookup n = try StringMap.find n local_vars
 			with Not_found -> StringMap.find n global_vars
 		in
-		(*
-		let rec getinx inx = match (snd(inx)) with
-			  SIntlit i -> i
-			(*| SArraccess of string * sexpr *)
-			| SId s -> 3(*let thing = Hashtbl.find ocaml_local_vars s in 
-				match thing with
-					A.Int -> thing
-					| _ -> raise(Failure("ID is not of type int"))*)
-			| SBinop (e1, op, e2) ->
-				(let e1' = getinx e1
-				and e2' = getinx e2 in
-				match op with
-					  A.Add     -> e1' + e2'
-					| A.Sub     -> e1' - e2'
-					| A.Mult    -> e1' * e2'
-					| A.Div     -> e1' / e2'
-					| _ -> raise(Failure("invalid binop")))
-			(*| SUnop of uop * sexpr
-			| SSretrieve of sexpr * string
-			| SCall of string * sexpr listfs*)
-			| _ -> raise(Failure("non-natural number index"))
-		in *)
+		
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i 
@@ -411,6 +398,10 @@ let translate (globals, functions, structs) =
             	L.build_call calloc_func (Array.of_list x) "calloc" builder
       		| SCall("free", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call free_func (Array.of_list x) "free" builder
+            | SCall("isletter", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call isvalid_func (Array.of_list x) "is_valid_letter" builder
+            | SCall("strappend", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call strappend_func (Array.of_list x) "string_append" builder
 			| SCall (f, args) ->
 				let (fdef, fdecl) = StringMap.find f function_decls in
 				let llargs = List.rev (List.map (expr builder) (List.rev args)) in
