@@ -94,7 +94,9 @@ let check (globals, functions, structs) =
                                ("putstr", Int, [(String, "x"); (String, "x")]);
                                ("atoi", Int, [(String, "x")]);
                                ("isletter", Bool, [(Char, "x")]);
-                               ("strappend", Char, [(String, "x"); (Int, "x"); (Char, "x")])
+                               ("strappend", Char, [(String, "x"); (Int, "x"); (Char, "x")]);
+                               ("moveptr", String, [(String, "x"); (Int, "y")]);
+                               ("substring", String, [(String, "x"); (Int, "y"); (Int, "z")])
                                ]     
 
                                (*StringMap.add "strlen" { 

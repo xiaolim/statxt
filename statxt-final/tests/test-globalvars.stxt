@@ -25,7 +25,7 @@ int main() {
 	f = 1.1;
 	c = 'a';
 	b = true;
-	s = "supercaligrafilisticsba sebsg";
+	s = "supercalifragilistic expielidocious";
 	arr = [4,5,6];
 
 	printfunc();

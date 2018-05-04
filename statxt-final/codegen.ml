@@ -170,6 +170,14 @@ let translate (globals, functions, structs) =
 	let strappend_t = L.function_type i8_t [| p_t; i32_t; i8_t |] in
 	let strappend_func = L.declare_function "string_append" strappend_t the_module in
 
+	(* Declare moveptr() function *)
+	let moveptr_t = L.function_type p_t [| p_t; i32_t |] in
+	let moveptr_func = L.declare_function "ith_pointer" moveptr_t the_module in
+
+	(* Declare substring() function *)
+	let substring_t = L.function_type p_t [| p_t; i32_t; i32_t |] in
+	let substring_func = L.declare_function "substring" substring_t the_module in
+
 	(* Define each function (arguments and return type) so we can 
 	 * define it's body and call it later *)
 	let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -453,6 +461,11 @@ let translate (globals, functions, structs) =
             	L.build_call isvalid_func (Array.of_list x) "is_valid_letter" builder
             | SCall("strappend", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strappend_func (Array.of_list x) "string_append" builder
+            | SCall("moveptr", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call moveptr_func (Array.of_list x) "ith_pointer" builder
+            | SCall("substring", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call substring_func (Array.of_list x) "substring" builder
+
 			| SCall (f, args) ->
 				let (fdef, fdecl) = StringMap.find f function_decls in
 				let llargs = List.rev (List.map (expr builder) (List.rev args)) in

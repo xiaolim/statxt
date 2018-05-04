@@ -82,6 +82,18 @@ char string_append(char* s, int index, char c ) {
   return c;
 }
 
+char* ith_pointer(char* s, int ind) {
+  return s+ind;
+}
+
+char* substring(char*s, int start, int len) {
+  char* temp = calloc(len, sizeof(char));
+  s = s+start;
+  for (int i =0; i<len; i++) {
+    temp[i] = s[i];
+  }
+  return temp;
+}
 
 char* string_lower(char* s) {
   int l;

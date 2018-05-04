@@ -1,13 +1,16 @@
 struct teststruct {
-	int[3] a;
+	string[3] a;
 	int b;
 };
 
 int main() {
 	struct teststruct s;
-	int[3] c;
-	s.a = [1,2,3];
+	string[3] c;
+	s.a = ["hello","Professor","Townsend"];
 	s.b = 3;
 	c = s.a;
-	//print(s.b);
+	int i;
+	for(i = 0; i < s.b; i++) {
+		printstr(c[i]);
+	}
 }
