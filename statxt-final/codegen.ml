@@ -134,6 +134,10 @@ let translate (globals, functions, structs) =
   	let strcmp_t = L.function_type i32_t [| p_t; p_t|] in 
   	let strcmp_func = L.declare_function "strcmp" strcmp_t the_module in
 
+  	(* Declare the built-in strcpy() function *)
+  	let strcpy_t = L.function_type p_t [| p_t; p_t|] in 
+  	let strcpy_func = L.declare_function "strcpy" strcpy_t the_module in
+
   	(* Declare the built-in strcat() function *)
   	let strcat_t = L.function_type p_t [| p_t; p_t|] in 
   	let strcat_func = L.declare_function "str_concat" strcat_t the_module in
@@ -163,7 +167,7 @@ let translate (globals, functions, structs) =
 	let isvalid_func = L.declare_function "is_valid_letter" isvalid_t the_module in
 
 	(* Declare strappend() function *)
-	let strappend_t = L.function_type void_t [| p_t; i32_t; i8_t |] in
+	let strappend_t = L.function_type i8_t [| p_t; i32_t; i8_t |] in
 	let strappend_func = L.declare_function "string_append" strappend_t the_module in
 
 	(* Define each function (arguments and return type) so we can 
@@ -388,6 +392,8 @@ let translate (globals, functions, structs) =
             	L.build_call strlen_func (Array.of_list x) "strlen" builder
       		| SCall("strcmp", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcmp_func (Array.of_list x) "strcmp" builder
+            | SCall("strcpy", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call strcpy_func (Array.of_list x) "strcpy" builder
       		| SCall("strcat", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcat_func (Array.of_list x) "str_concat" builder
       		| SCall("strget", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in

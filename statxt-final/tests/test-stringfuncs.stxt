@@ -16,6 +16,12 @@ int main() {
 	printb(b1);
 	printb(b2);
 
+	string str2;
+	str2 = calloc(strlen(str1), 1);
+	str2 = strcpy(str2, str1);
+	strappend(str2,3,'l');
+	printstr(str2);
+
 
 
 /* test for putstr

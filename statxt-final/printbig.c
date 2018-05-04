@@ -77,8 +77,9 @@ int is_valid_letter(char c) {
   return 0;
 }
 
-void string_append(char* s, int index, char c ) {
+char string_append(char* s, int index, char c ) {
   s[index] = c;
+  return c;
 }
 
 

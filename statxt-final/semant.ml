@@ -81,6 +81,7 @@ let check (globals, functions, structs) =
 			                         ("printbig", Void, [(Int, "x")]);
                                ("strlen", Int, [(String, "x")]);
                                ("strcmp", Int, [(String, "x"); (String, "x")]);
+                               ("strcpy", String, [(String, "x"); (String, "x")]);
                                ("strcat", String, [(String, "x"); (String, "x")]);
                                ("strget", Char, [(String, "x"); (Int, "y")]);
                                ("lower", String, [(String, "x")]);
@@ -93,7 +94,7 @@ let check (globals, functions, structs) =
                                ("putstr", Int, [(String, "x"); (String, "x")]);
                                ("atoi", Int, [(String, "x")]);
                                ("isletter", Bool, [(Char, "x")]);
-                               ("strappend", Void, [(String, "x"); (Int, "x"); (Char, "x")])
+                               ("strappend", Char, [(String, "x"); (Int, "x"); (Char, "x")])
                                ]     
 
                                (*StringMap.add "strlen" { 
