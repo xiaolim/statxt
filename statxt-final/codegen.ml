@@ -36,8 +36,6 @@ let translate (globals, functions, structs) =
 	and the_module = L.create_module context "Statxt" in
 
 	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
-	(*let ocaml_global_vars = Hashtbl.create 108 in*)
-	let ocaml_local_vars = Hashtbl.create 108 in
 
 	let make_struct_type sdecl =
 		let struct_t = L.named_struct_type context sdecl.ssname in
@@ -59,7 +57,6 @@ let translate (globals, functions, structs) =
 		| A.Array(typ, size) -> L.array_type (ltype_of_typ typ) size
 		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
-
 
 	(* Define structs and fill hashtable *)
 
@@ -86,18 +83,16 @@ let translate (globals, functions, structs) =
 	List.fold_left handles StringMap.empty structs  
 	in
 
-
-
-
-
-
-
-
 	(* Declare each global variable; remember its value in a map *)
 	let global_vars : L.llvalue StringMap.t =
 		let global_var m (t, n) = 
 			let init = match t with
 				  A.Float -> L.const_float (ltype_of_typ t) 0.0
+				| A.Array(typ, size) -> 
+					L.const_null (L.array_type (ltype_of_typ typ) size)
+				| A.String -> 
+					let l = L.define_global "" (L.const_stringz context n) the_module in
+					L.const_bitcast (L.const_gep l [|L.const_int i32_t 0|]) p_t 
 				| _ -> L.const_int (ltype_of_typ t) 0
 			in StringMap.add n (L.define_global n init the_module) m in
 	List.fold_left global_var StringMap.empty globals in
@@ -106,24 +101,32 @@ let translate (globals, functions, structs) =
 		L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 	let printf_func : L.llvalue = 
 		L.declare_function "printf" printf_t the_module in
+	
+	(* Declare the built-in atoi() function *)
+  	let atoi_t = L.function_type i32_t [| p_t |] in
+  	let atoi_func = L.declare_function "atoi" atoi_t the_module in
 
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
-  	let open_func = L.declare_function "file_open" open_t the_module in
+  	let open_func = L.declare_function "open_file" open_t the_module in
 
   	(* Declare the built-in close() function *)
   	let close_t = L.function_type i32_t [| p_t |] in
-  	let close_func = L.declare_function "fclose" close_t the_module in
+  	let close_func = L.declare_function "close_file" close_t the_module in
    
   	(* Declare the built-in fputs() function as write() *)
-  	let write_t = L.function_type i32_t [| L.pointer_type i8_t; p_t |] in 
-  	let write_func = L.declare_function "fputs" write_t the_module in
+  	let write_t = L.function_type i32_t [| L.pointer_type i8_t; i32_t; i32_t; p_t |] in 
+  	let write_func = L.declare_function "write_file" write_t the_module in
 
-  	(* Declare the built-in fread() function as read() *)
+  	(* Declare the built-in read() function *)
   	let read_t = L.function_type i32_t [| p_t; i32_t; i32_t; p_t |] in 
   	let read_func = L.declare_function "read_file" read_t the_module in
 
-  	(* Declare the built-in strlen() function  *)
+	(* Declare the built-in putstr() function *)
+  	let putstr_t = L.function_type i32_t [| p_t; p_t |] in 
+  	let putstr_func = L.declare_function "put_in_file" putstr_t the_module in
+
+  	(* Declare the built-in strlen() function *)
   	let strlen_t = L.function_type i32_t [| p_t |] in 
   	let strlen_func = L.declare_function "strlen" strlen_t the_module in
 
@@ -135,15 +138,11 @@ let translate (globals, functions, structs) =
   	let strcat_t = L.function_type p_t [| p_t; p_t|] in 
   	let strcat_func = L.declare_function "str_concat" strcat_t the_module in
 
-  	(* Declare the built-in strcpy() function *)
-  	let strcpy_t = L.function_type p_t [| p_t; p_t|] in 
-  	let strcpy_func = L.declare_function "strcpy" strcpy_t the_module in
-
   	(* Declare the built-in strget() function *)
   	let strget_t = L.function_type i8_t [| p_t; i32_t|] in 
   	let strget_func = L.declare_function "strget" strget_t the_module in
 
-  	(* Declare c code as string_lower() *)
+  	(* Declare string_lower() function *)
   	let lower_t = L.function_type p_t [| p_t |] in 
   	let lower_func = L.declare_function "string_lower" lower_t the_module in
 
@@ -151,12 +150,21 @@ let translate (globals, functions, structs) =
     let calloc_t = L.function_type p_t [| i32_t ; i32_t|] in 
     let calloc_func = L.declare_function "calloc" calloc_t the_module in
 
-    (* Declare free from heap *)
-    let free_t = L.function_type p_t [| p_t |] in 
+    (* Declare free() from heap *)
+    let free_t = L.function_type i32_t [| p_t |] in 
     let free_func = L.declare_function "free" free_t the_module in
 
+    (* Declare print function *)
 	let printbig_t = L.function_type i32_t [| i32_t |] in
 	let printbig_func = L.declare_function "printbig" printbig_t the_module in
+
+	(* Declare isletter() function *)
+	let isvalid_t = L.function_type i1_t [| i8_t |] in
+	let isvalid_func = L.declare_function "is_valid_letter" isvalid_t the_module in
+
+	(* Declare strappend() function *)
+	let strappend_t = L.function_type void_t [| p_t; i32_t; i8_t |] in
+	let strappend_func = L.declare_function "string_append" strappend_t the_module in
 
 	(* Define each function (arguments and return type) so we can 
 	 * define it's body and call it later *)
@@ -187,14 +195,14 @@ let translate (globals, functions, structs) =
 			let () = L.set_value_name n p in
 			let local = L.build_alloca (ltype_of_typ t) n builder in
 			let _  = L.build_store p local builder in
-			Hashtbl.add ocaml_local_vars n t; StringMap.add n local m 
+			StringMap.add n local m 
 		in
 
 		(* Allocate space for any locally declared variables and add the
 		 * resulting registers to our map *)
 		let add_local m (t, n) =
 			let local_var = L.build_alloca (ltype_of_typ t) n builder
-			in Hashtbl.add ocaml_local_vars n t; StringMap.add n local_var m 
+			in StringMap.add n local_var m 
 		in
 
 		let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -207,13 +215,17 @@ let translate (globals, functions, structs) =
 		let lookup n = try StringMap.find n local_vars
 			with Not_found -> StringMap.find n global_vars
 		in
+<<<<<<< HEAD
+=======
+		
+		(* Construct code for an expression; return its value *)
+>>>>>>> f810374ded1a7ab3cda06e7f8fb4512b94e250f2
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i 
 			| SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
 			| SFliteral l -> L.const_float_of_string float_t l
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
-			| SStructlit s -> lookup s
 			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
 											let errthang = List.map (fun x -> expr builder x) sexprs in
 											let this_array = L.build_alloca (L.array_type ltype_of_arr size) "tmp" builder in
@@ -262,7 +274,6 @@ let translate (globals, functions, structs) =
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
 												  (_, SId s) -> lookup s
-												| (_, SStructlit s) -> lookup s
 												| (_, SSretrieve (str,element)) -> 
 													(match str with
 														  (_, SId s) ->
@@ -410,12 +421,16 @@ let translate (globals, functions, structs) =
 			| SCall ("printf", [e]) -> 
 				L.build_call printf_func [| float_format_str ; (expr builder e) |]
 					"printf" builder
+			| SCall("atoi", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call atoi_func (Array.of_list x) "atoi" builder
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call open_func (Array.of_list x) "file_open" builder
+            	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call close_func (Array.of_list x) "fclose" builder
+            	L.build_call close_func (Array.of_list x) "close_file" builder
       	 	| SCall ("read", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call read_func (Array.of_list x) "read_file" builder
+            | SCall ("putstr", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call putstr_func (Array.of_list x) "put_in_file" builder
       		| SCall("write", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call write_func (Array.of_list x) "fputs" builder
       		| SCall("strlen", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
@@ -424,8 +439,6 @@ let translate (globals, functions, structs) =
             	L.build_call strcmp_func (Array.of_list x) "strcmp" builder
       		| SCall("strcat", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcat_func (Array.of_list x) "str_concat" builder
-      		| SCall("strcpy", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call strcpy_func (Array.of_list x) "strcpy" builder
       		| SCall("strget", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strget_func (Array.of_list x) "strget" builder
       		| SCall("lower", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
@@ -434,6 +447,10 @@ let translate (globals, functions, structs) =
             	L.build_call calloc_func (Array.of_list x) "calloc" builder
       		| SCall("free", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call free_func (Array.of_list x) "free" builder
+            | SCall("isletter", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call isvalid_func (Array.of_list x) "is_valid_letter" builder
+            | SCall("strappend", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call strappend_func (Array.of_list x) "string_append" builder
 			| SCall (f, args) ->
 				let (fdef, fdecl) = StringMap.find f function_decls in
 				let llargs = List.rev (List.map (expr builder) (List.rev args)) in

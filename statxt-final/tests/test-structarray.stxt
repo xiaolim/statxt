@@ -1,0 +1,13 @@
+struct teststruct {
+	int[3] a;
+	int b;
+};
+
+int main() {
+	struct teststruct s;
+	int[3] c;
+	s.a = [1,2,3];
+	s.b = 3;
+	c = s.a;
+	//print(s.b);
+}

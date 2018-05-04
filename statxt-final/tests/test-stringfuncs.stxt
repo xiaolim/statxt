@@ -1,15 +1,75 @@
 int main() {
+
+	string str1;
+	str1 = "hel*o#";
+	char c1;
+	char c2;
+	c1 = strget(str1, 1);
+	c2 = strget(str1, 3);
+	printchar(c1);
+	printchar(c2);
+	
+	bool b1;
+	bool b2;
+	b1 = isletter(c1);
+	b2 = isletter(c2);
+	printb(b1);
+	printb(b2);
+
+
+
+/* test for putstr
 	string filename;
-	filename = "open-file-test.txt";
+	filename = "/home/zel2109/Statxt/statxt-final/tests/open-file-test.txt";
 	string fd;
+	fd = open(filename, "a");
+
+
+	string str1;
+	str1 = "Hakuna";
+	int size;
+	size = 1;
+	int len;
+	len = 7;
+	int putstr_err;
+	putstr_err = putstr(str1, fd);
+	int err_close;
+	err_close = close(fd);
+
 	fd = open(filename, "rb");
 	string read_data;
-	read_data =	calloc(1,1);
-	string ret_str;
-	int i;
-	/*i = read(read_data,1,1,fd); */
+	read_data =	calloc(200,1);
+	int read_err;
+	read_err = read(read_data,1,200,fd); 
+	printstr(read_data);
+	err_close = close(fd);
+*/
 
 
+
+
+
+/* test for read and open/close
+	string filename;
+	filename = "/home/zel2109/Statxt/statxt-final/tests/open-file-test.txt";
+	string fd;
+	fd = open(filename, "rb");
+	
+	string read_data;
+	read_data =	calloc(100,1);
+	int read_err;
+	read_err = read(read_data,1,100,fd); 
+	printstr(read_data);
+
+	int free_err;
+	free_err = free(read_data);
+
+	int close_err;
+	close_err =close(fd);
+
+	print(free_err);
+	print(close_err);
+*/
 
 
 

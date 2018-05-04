@@ -1,0 +1,17 @@
+struct a {
+	int v;
+};
+
+struct teststruct {
+	struct a a1;
+};
+
+int main() {
+	struct teststruct t;
+
+	struct a b;
+
+	b = t.a1;
+
+	
+}

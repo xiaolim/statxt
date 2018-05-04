@@ -10,6 +10,7 @@ let strings = '"'([' '-'!' '#'-'[' ']'-'~' ]*)'"'
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
+| "//"	   { sameline_comment lexbuf}
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -61,3 +62,7 @@ rule token = parse
 and comment = parse
   "*/" { token lexbuf }
 | _    { comment lexbuf }
+
+and sameline_comment = parse
+  '\n' { token lexbuf }
+| _	   { sameline_comment lexbuf }
