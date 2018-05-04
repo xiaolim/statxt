@@ -215,11 +215,7 @@ let translate (globals, functions, structs) =
 		let lookup n = try StringMap.find n local_vars
 			with Not_found -> StringMap.find n global_vars
 		in
-<<<<<<< HEAD
-=======
-		
 		(* Construct code for an expression; return its value *)
->>>>>>> f810374ded1a7ab3cda06e7f8fb4512b94e250f2
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i 
 			| SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
