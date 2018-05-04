@@ -21,7 +21,7 @@ type expr =
   | BoolLit of bool
   | Id of string
   | Arraylit of expr list * int (* list of expressions and size of array *)
-  | Arraccess of string * expr
+  | Arraccess of expr * expr
   | Binop of expr * op * expr
   | Unop of uop * expr
   | IncDec of expr * incdec 
@@ -87,7 +87,7 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | Id(s) -> s
   | Arraylit(exp, i) -> "[" ^ String.concat ", " (List.map string_of_expr exp) ^ "] (length: " ^ (string_of_int i) ^ ")"
-  | Arraccess(s, exp) -> s ^ "[" ^ (string_of_expr exp) ^ "]"
+  | Arraccess(s, exp) -> (string_of_expr s) ^ "[" ^ (string_of_expr exp) ^ "]"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e

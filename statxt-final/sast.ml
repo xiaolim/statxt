@@ -10,7 +10,7 @@ and sx =
   | SStrlit of string
   | SBoolLit of bool
   | SArraylit of sexpr list * int (* list of expressions and size of array *)
-  | SArraccess of string * sexpr
+  | SArraccess of sexpr * sexpr
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
@@ -56,7 +56,7 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SArraylit(exp, i) -> "[" ^ String.concat ", " (List.map string_of_sexpr exp) ^ "] (length: " ^ (string_of_int i) ^ ")"
-  | SArraccess(s, exp) -> s ^ "[" ^ (string_of_sexpr exp) ^ "]"
+  | SArraccess(s, exp) -> (string_of_sexpr s) ^ "[" ^ (string_of_sexpr exp) ^ "]"
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
