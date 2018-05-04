@@ -150,7 +150,6 @@ let check (globals, functions, structs) =
       | BoolLit l  -> (Bool, SBoolLit l)
       | Strlit l   -> (String, SStrlit l)
       | Charlit l  -> (Char, SCharlit l)
-      | Structlit l -> (String, SStructlit l)
       | Arraylit (eles, size) -> let e1 = List.hd eles in
       								let (ty, _) = expr e1 in
       								let _ = match ty with

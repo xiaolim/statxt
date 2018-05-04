@@ -19,7 +19,6 @@ type expr =
   | Charlit of char
   | Strlit of string
   | BoolLit of bool
-  | Structlit of string
   | Id of string
   | Arraylit of expr list * int (* list of expressions and size of array *)
   | Arraccess of string * expr
@@ -86,7 +85,6 @@ let rec string_of_expr = function
   | Strlit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  | Structlit(l) -> "Struct " ^ l
   | Id(s) -> s
   | Arraylit(exp, i) -> "[" ^ String.concat ", " (List.map string_of_expr exp) ^ "] (length: " ^ (string_of_int i) ^ ")"
   | Arraccess(s, exp) -> s ^ "[" ^ (string_of_expr exp) ^ "]"

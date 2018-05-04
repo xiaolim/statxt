@@ -36,8 +36,6 @@ let translate (globals, functions, structs) =
 	and the_module = L.create_module context "Statxt" in
 
 	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
-	(*let ocaml_global_vars = Hashtbl.create 108 in*)
-	let ocaml_local_vars = Hashtbl.create 108 in
 
 	let make_struct_type sdecl =
 		let struct_t = L.named_struct_type context sdecl.ssname in
@@ -59,7 +57,6 @@ let translate (globals, functions, structs) =
 		| A.Array(typ, size) -> L.array_type (ltype_of_typ typ) size
 		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
-
 
 	(* Define structs and fill hashtable *)
 
@@ -85,13 +82,6 @@ let translate (globals, functions, structs) =
 	in
 	List.fold_left handles StringMap.empty structs  
 	in
-
-
-
-
-
-
-
 
 	(* Declare each global variable; remember its value in a map *)
 	let global_vars : L.llvalue StringMap.t =
@@ -187,14 +177,14 @@ let translate (globals, functions, structs) =
 			let () = L.set_value_name n p in
 			let local = L.build_alloca (ltype_of_typ t) n builder in
 			let _  = L.build_store p local builder in
-			Hashtbl.add ocaml_local_vars n t; StringMap.add n local m 
+			StringMap.add n local m 
 		in
 
 		(* Allocate space for any locally declared variables and add the
 		 * resulting registers to our map *)
 		let add_local m (t, n) =
 			let local_var = L.build_alloca (ltype_of_typ t) n builder
-			in Hashtbl.add ocaml_local_vars n t; StringMap.add n local_var m 
+			in StringMap.add n local_var m 
 		in
 
 		let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -236,7 +226,6 @@ let translate (globals, functions, structs) =
 			| SFliteral l -> L.const_float_of_string float_t l
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
-			| SStructlit s -> lookup s
 			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
 											(*let () = print_endline (L.string_of_lltype ltype_of_arr) in*)
 											(*let lsize = L.const_int i32_t size in*)
@@ -268,7 +257,6 @@ let translate (globals, functions, structs) =
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
 												  (_, SId s) -> lookup s
-												| (_, SStructlit s) -> lookup s
 												| (_, SSretrieve (str,element)) -> 
 													(match str with
 														  (_, SId s) ->
