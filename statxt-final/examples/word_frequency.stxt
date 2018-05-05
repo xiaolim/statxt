@@ -1,0 +1,14 @@
+/* This function prints the frequency of a given word in a sentence
+	args:
+		sentence -> string
+		world -> string
+	return:
+		int
+*/
+
+int	word_frequency(string sentence, string word) {
+
+
+
+
+}  
