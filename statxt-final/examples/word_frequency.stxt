@@ -6,9 +6,43 @@
 		int
 */
 
-int	word_frequency(string sentence, string word) {
+
+
+int	word_frequency(string line, string word) {
+	int count;
+	
+	int l_len;
+	int w_len;
+	l_len = strlen(line);
+	w_len = strlen(word);
+	
+	char last_seen;
+	char l_curr_char;
+	char w_curr_char; 
+		
+	int i;
+	i = 0;
+	int j;
+	j = 0;
+
+	while (i < s_len) {
+	l_curr_char = line[i];
+	w_curr_char;
+	if (l_curr_char 
+	
+
+	} 
 
 
 
+} 
 
-}  
+
+string[2048] word_array(string line) {
+	string[2048] words;
+	
+
+
+}
+
+string get first world 
