@@ -1,0 +1,15 @@
+int main() {
+
+	string str1;
+	str1 = "hello world";
+	string arr_str[3];
+	int i;
+	i=1;
+
+	string  temp_str;
+	temp_str=sub_string(str1,0,5);
+
+	bool is_str_equal = (str1 == temp_str);
+	printbool(is_str_equal);
+
+}
