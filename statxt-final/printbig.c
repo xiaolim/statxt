@@ -67,9 +67,32 @@ void printbig(int c)
   } while (index & 0x7); 
 }
 
-char strget(char* c, int n)
-{
+char strget(char* c, int n) {
     return c[n];
+}
+
+int is_valid_letter(char c) {
+  if ((c>=48 && c<=57) || (c>=65 && c<=90) || (c>=97  && c<=122))
+    return 1;
+  return 0;
+}
+
+char string_append(char* s, int index, char c ) {
+  s[index] = c;
+  return c;
+}
+
+char* ith_pointer(char* s, int ind) {
+  return s+ind;
+}
+
+char* substring(char*s, int start, int len) {
+  char* temp = calloc(len, sizeof(char));
+  s = s+start;
+  for (int i =0; i<len; i++) {
+    temp[i] = s[i];
+  }
+  return temp;
 }
 
 char* string_lower(char* s) {

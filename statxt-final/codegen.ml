@@ -36,8 +36,6 @@ let translate (globals, functions, structs) =
 	and the_module = L.create_module context "Statxt" in
 
 	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
-	(*let ocaml_global_vars = Hashtbl.create 108 in*)
-	let ocaml_local_vars = Hashtbl.create 108 in
 
 	let make_struct_type sdecl =
 		let struct_t = L.named_struct_type context sdecl.ssname in
@@ -59,7 +57,6 @@ let translate (globals, functions, structs) =
 		| A.Array(typ, size) -> L.array_type (ltype_of_typ typ) size
 		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
-
 
 	(* Define structs and fill hashtable *)
 
@@ -86,18 +83,16 @@ let translate (globals, functions, structs) =
 	List.fold_left handles StringMap.empty structs  
 	in
 
-
-
-
-
-
-
-
 	(* Declare each global variable; remember its value in a map *)
 	let global_vars : L.llvalue StringMap.t =
 		let global_var m (t, n) = 
 			let init = match t with
 				  A.Float -> L.const_float (ltype_of_typ t) 0.0
+				| A.Array(typ, size) -> 
+					L.const_null (L.array_type (ltype_of_typ typ) size)
+				| A.String -> 
+					let l = L.define_global "" (L.const_stringz context n) the_module in
+					L.const_bitcast (L.const_gep l [|L.const_int i32_t 0|]) p_t 
 				| _ -> L.const_int (ltype_of_typ t) 0
 			in StringMap.add n (L.define_global n init the_module) m in
 	List.fold_left global_var StringMap.empty globals in
@@ -106,6 +101,10 @@ let translate (globals, functions, structs) =
 		L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 	let printf_func : L.llvalue = 
 		L.declare_function "printf" printf_t the_module in
+	
+	(* Declare the built-in atoi() function *)
+  	let atoi_t = L.function_type i32_t [| p_t |] in
+  	let atoi_func = L.declare_function "atoi" atoi_t the_module in
 
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
@@ -135,6 +134,10 @@ let translate (globals, functions, structs) =
   	let strcmp_t = L.function_type i32_t [| p_t; p_t|] in 
   	let strcmp_func = L.declare_function "strcmp" strcmp_t the_module in
 
+  	(* Declare the built-in strcpy() function *)
+  	let strcpy_t = L.function_type p_t [| p_t; p_t|] in 
+  	let strcpy_func = L.declare_function "strcpy" strcpy_t the_module in
+
   	(* Declare the built-in strcat() function *)
   	let strcat_t = L.function_type p_t [| p_t; p_t|] in 
   	let strcat_func = L.declare_function "str_concat" strcat_t the_module in
@@ -155,8 +158,25 @@ let translate (globals, functions, structs) =
     let free_t = L.function_type i32_t [| p_t |] in 
     let free_func = L.declare_function "free" free_t the_module in
 
+    (* Declare print function *)
 	let printbig_t = L.function_type i32_t [| i32_t |] in
 	let printbig_func = L.declare_function "printbig" printbig_t the_module in
+
+	(* Declare isletter() function *)
+	let isvalid_t = L.function_type i1_t [| i8_t |] in
+	let isvalid_func = L.declare_function "is_valid_letter" isvalid_t the_module in
+
+	(* Declare strappend() function *)
+	let strappend_t = L.function_type i8_t [| p_t; i32_t; i8_t |] in
+	let strappend_func = L.declare_function "string_append" strappend_t the_module in
+
+	(* Declare moveptr() function *)
+	let moveptr_t = L.function_type p_t [| p_t; i32_t |] in
+	let moveptr_func = L.declare_function "ith_pointer" moveptr_t the_module in
+
+	(* Declare substring() function *)
+	let substring_t = L.function_type p_t [| p_t; i32_t; i32_t |] in
+	let substring_func = L.declare_function "substring" substring_t the_module in
 
 	(* Define each function (arguments and return type) so we can 
 	 * define it's body and call it later *)
@@ -187,14 +207,14 @@ let translate (globals, functions, structs) =
 			let () = L.set_value_name n p in
 			let local = L.build_alloca (ltype_of_typ t) n builder in
 			let _  = L.build_store p local builder in
-			Hashtbl.add ocaml_local_vars n t; StringMap.add n local m 
+			StringMap.add n local m 
 		in
 
 		(* Allocate space for any locally declared variables and add the
 		 * resulting registers to our map *)
 		let add_local m (t, n) =
 			let local_var = L.build_alloca (ltype_of_typ t) n builder
-			in Hashtbl.add ocaml_local_vars n t; StringMap.add n local_var m 
+			in StringMap.add n local_var m 
 		in
 
 		let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -207,28 +227,6 @@ let translate (globals, functions, structs) =
 		let lookup n = try StringMap.find n local_vars
 			with Not_found -> StringMap.find n global_vars
 		in
-		(*
-		let rec getinx inx = match (snd(inx)) with
-			  SIntlit i -> i
-			(*| SArraccess of string * sexpr *)
-			| SId s -> 3(*let thing = Hashtbl.find ocaml_local_vars s in 
-				match thing with
-					A.Int -> thing
-					| _ -> raise(Failure("ID is not of type int"))*)
-			| SBinop (e1, op, e2) ->
-				(let e1' = getinx e1
-				and e2' = getinx e2 in
-				match op with
-					  A.Add     -> e1' + e2'
-					| A.Sub     -> e1' - e2'
-					| A.Mult    -> e1' * e2'
-					| A.Div     -> e1' / e2'
-					| _ -> raise(Failure("invalid binop")))
-			(*| SUnop of uop * sexpr
-			| SSretrieve of sexpr * string
-			| SCall of string * sexpr listfs*)
-			| _ -> raise(Failure("non-natural number index"))
-		in *)
 		(* Construct code for an expression; return its value *)
 		let rec expr builder ((_, e) : sexpr) = match e with
 			  SIntlit i -> L.const_int i32_t i 
@@ -236,39 +234,54 @@ let translate (globals, functions, structs) =
 			| SFliteral l -> L.const_float_of_string float_t l
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
-			| SStructlit s -> lookup s
 			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
-											(*let () = print_endline (L.string_of_lltype ltype_of_arr) in*)
-											(*let lsize = L.const_int i32_t size in*)
-											(*let () = print_endline (L.string_of_llvalue lsize) in*)
 											let errthang = List.map (fun x -> expr builder x) sexprs in
-											(*let () = List.iter print_endline (List.map string_of_sexpr sexprs) in*)
-											(*let this_array = L.build_array_alloca ltype_of_arr lsize "tmp" builder in*)
 											let this_array = L.build_alloca (L.array_type ltype_of_arr size) "tmp" builder in
-											(*let () = print_endline ("this_array: " ^ (L.string_of_llvalue this_array)) in*)
 											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
 											let index_list = range 0 size in
-											(*let () = List.iter print_endline (List.map string_of_int index_list) in*)
 											List.iter (fun x ->
 												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp2" builder in
-												(*let () = print_endline ("where: " ^ (L.string_of_llvalue where)) in*)
 												let what = List.nth errthang x in
-												(*let () = print_endline ("what: " ^ (L.string_of_llvalue what)) in
-												let () = print_endline ("a: " ^ (L.string_of_llvalue (lookup ("a") ))) in*)
 												ignore (L.build_store what where builder)
 											) index_list; L.build_load this_array "tmp3" builder
-
-											(* raise(Failure "boogers") *)
-			| SArraccess(s, exp) ->
-				let array_llvalue = lookup s in
-				let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-				let array_load = L.build_load something "tmp2" builder in
-				array_load
+			| SArraccess(exp0, exp) ->
+				(match exp0 with
+					  (_, SId s) -> let array_llvalue = lookup s in
+							let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+							let array_load = L.build_load something "tmp2" builder in array_load
+					| (_, SSretrieve (str, element)) -> (let s_llvalue = 
+							(match str with
+								  (_, SId s) ->
+									let etype = fst( 
+										let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+										let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
+										try List.find (fun n -> snd(n) = s) fdecl_locals
+										with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
+											with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+									in
+									(try match etype with
+										  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
+										| _ -> raise (Failure("not found"))
+									with Not_found -> raise (Failure(s ^ "not found")))
+								| _ -> raise (Failure("lhs not found")))
+							in
+							let built_e = expr builder str in
+							let built_e_lltype = L.type_of built_e in
+							let built_e_opt = L.struct_name built_e_lltype in
+							let built_e_name = (match built_e_opt with 
+													  None -> ""
+													| Some(s) -> s)
+							in 
+							let indices = StringMap.find built_e_name struct_element_index in
+							let index = StringMap.find element indices in
+							let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
+							let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+							let array_load = L.build_load something "tmp2" builder in array_load)
+					| _ -> raise(Failure("not an array")))
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
 			| SAssign (e1, e2) -> 	let e1' = (match e1 with
 												  (_, SId s) -> lookup s
-												| (_, SStructlit s) -> lookup s
 												| (_, SSretrieve (str,element)) -> 
 													(match str with
 														  (_, SId s) ->
@@ -289,9 +302,40 @@ let translate (globals, functions, structs) =
 																| _ -> raise (Failure("not found"))
 															with Not_found -> raise (Failure(s ^ "not found")))
 														| _ -> raise (Failure("lhs not found")))
-												| (_, SArraccess (s, exp)) -> 	let array_llvalue = lookup s in
-																				let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-																				something
+												| (_, SArraccess (exp0, exp)) -> 
+																	(match exp0 with
+																	  (_, SId s) -> let array_llvalue = lookup s in
+																			let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																			something
+																	| (_, SSretrieve (str, element)) -> (let s_llvalue = 
+																			(match str with
+																				  (_, SId s) ->
+																					let etype = fst( 
+																						let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
+																						let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
+																						try List.find (fun n -> snd(n) = s) fdecl_locals
+																						with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
+																							with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+																					in
+																					(try match etype with
+																						  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
+																						| _ -> raise (Failure("not found"))
+																					with Not_found -> raise (Failure(s ^ "not found")))
+																				| _ -> raise (Failure("lhs not found")))
+																			in
+																			let built_e = expr builder str in
+																			let built_e_lltype = L.type_of built_e in
+																			let built_e_opt = L.struct_name built_e_lltype in
+																			let built_e_name = (match built_e_opt with 
+																									  None -> ""
+																									| Some(s) -> s)
+																			in 
+																			let indices = StringMap.find built_e_name struct_element_index in
+																			let index = StringMap.find element indices in
+																			let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
+																			let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																			something)
+																	| _ -> raise(Failure("not an array")))
 												| _ -> raise (Failure "fudgesicles")
 											)
 									and e2' = expr builder e2 in
@@ -308,9 +352,7 @@ let translate (globals, functions, structs) =
 								with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 						in
 						(try match etype with
-							  A.Struct _ ->
-								let struct_llvalue = lookup s in
-								struct_llvalue
+							  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
 							| _ -> raise (Failure("not found"))
 						with Not_found -> raise (Failure(s ^ "not found")))
 					| _ -> raise (Failure("lhs not found")))
@@ -387,6 +429,8 @@ let translate (globals, functions, structs) =
 			| SCall ("printf", [e]) -> 
 				L.build_call printf_func [| float_format_str ; (expr builder e) |]
 					"printf" builder
+			| SCall("atoi", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call atoi_func (Array.of_list x) "atoi" builder
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
@@ -401,6 +445,8 @@ let translate (globals, functions, structs) =
             	L.build_call strlen_func (Array.of_list x) "strlen" builder
       		| SCall("strcmp", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcmp_func (Array.of_list x) "strcmp" builder
+            | SCall("strcpy", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call strcpy_func (Array.of_list x) "strcpy" builder
       		| SCall("strcat", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call strcat_func (Array.of_list x) "str_concat" builder
       		| SCall("strget", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
@@ -411,6 +457,15 @@ let translate (globals, functions, structs) =
             	L.build_call calloc_func (Array.of_list x) "calloc" builder
       		| SCall("free", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call free_func (Array.of_list x) "free" builder
+            | SCall("isletter", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call isvalid_func (Array.of_list x) "is_valid_letter" builder
+            | SCall("strappend", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call strappend_func (Array.of_list x) "string_append" builder
+            | SCall("moveptr", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call moveptr_func (Array.of_list x) "ith_pointer" builder
+            | SCall("substring", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call substring_func (Array.of_list x) "substring" builder
+
 			| SCall (f, args) ->
 				let (fdef, fdecl) = StringMap.find f function_decls in
 				let llargs = List.rev (List.map (expr builder) (List.rev args)) in

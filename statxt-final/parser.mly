@@ -34,6 +34,7 @@ let trd (_,_,c) = c;;
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left LSQUARE RSQUARE
 %left DOT
 %right NOT NEG
 
@@ -123,7 +124,7 @@ expr:
   | ID               { Id($1)                 }
   | expr INCREMENT   { IncDec($1, Inc)        }
   | expr DECREMENT   { IncDec($1, Dec)        }  
-  | ID LSQUARE expr RSQUARE { Arraccess($1, $3) }
+  | expr LSQUARE expr RSQUARE { Arraccess($1, $3) }
   | LSQUARE array_list RSQUARE { Arraylit(List.rev $2, List.length $2) }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }

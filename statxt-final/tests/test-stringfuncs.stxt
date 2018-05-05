@@ -1,4 +1,7 @@
 int main() {
+	
+
+/* test for putstr
 	string filename;
 	filename = "/home/zel2109/Statxt/statxt-final/tests/open-file-test.txt";
 	string fd;
@@ -23,8 +26,7 @@ int main() {
 	read_err = read(read_data,1,200,fd); 
 	printstr(read_data);
 	err_close = close(fd);
-
-	
+*/
 
 
 

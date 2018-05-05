@@ -81,6 +81,7 @@ let check (globals, functions, structs) =
 			                         ("printbig", Void, [(Int, "x")]);
                                ("strlen", Int, [(String, "x")]);
                                ("strcmp", Int, [(String, "x"); (String, "x")]);
+                               ("strcpy", String, [(String, "x"); (String, "x")]);
                                ("strcat", String, [(String, "x"); (String, "x")]);
                                ("strget", Char, [(String, "x"); (Int, "y")]);
                                ("lower", String, [(String, "x")]);
@@ -91,6 +92,11 @@ let check (globals, functions, structs) =
                                ("calloc", String, [(Int, "x"); (Int, "y")]);
                                ("free", Int, [(String, "x")]);
                                ("putstr", Int, [(String, "x"); (String, "x")]);
+                               ("atoi", Int, [(String, "x")]);
+                               ("isletter", Bool, [(Char, "x")]);
+                               ("strappend", Char, [(String, "x"); (Int, "x"); (Char, "x")]);
+                               ("moveptr", String, [(String, "x"); (Int, "y")]);
+                               ("substring", String, [(String, "x"); (Int, "y"); (Int, "z")])
                                ]     
 
                                (*StringMap.add "strlen" { 
@@ -150,7 +156,6 @@ let check (globals, functions, structs) =
       | BoolLit l  -> (Bool, SBoolLit l)
       | Strlit l   -> (String, SStrlit l)
       | Charlit l  -> (Char, SCharlit l)
-      | Structlit l -> (String, SStructlit l)
       | Arraylit (eles, size) -> let e1 = List.hd eles in
       								let (ty, _) = expr e1 in
       								let _ = match ty with
@@ -163,14 +168,14 @@ let check (globals, functions, structs) =
       								in let _ = List.iter (fun a -> if (fst(expr a) = ty) then () else raise(Failure("type mismatch"))) eles
       								in let seles = List.map expr eles
       								in (Array (ty, size(*(List.length eles)*)), SArraylit(seles, size)) (*not sure about the SNoexpr*)
-      | Arraccess (s, exp) -> 
+      | Arraccess (exp0, exp) -> 
       	  let t = let _ = match (fst(expr exp)) with 
       	  	   Int -> Int
       	 	 | _ -> raise(Failure ("accessing array with non-integer type")) in
-	      	  	match (type_of_identifier s) with
+	      	  	match (fst(expr exp0)) with
 	      	  	  Array(t, _) -> t (* if something breaks, this is the problem. returns tuple like string * a *)
 	      	  	| _ -> raise(Failure ("trying to access a non-array type"))
-	      in (t, SArraccess(s, (expr exp)))
+	      in (t, SArraccess((expr exp0), (expr exp)))
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(e1, e2) as ex -> 
