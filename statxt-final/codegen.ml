@@ -107,7 +107,7 @@ let translate (globals, functions, structs) =
   	let atoi_func = L.declare_function "atoi" atoi_t the_module in
 
   	(* Declare the built-in itoc() function *)
-  	let itoc_t = L.function_type i8_t [| i32_t_t |] in
+  	let itoc_t = L.function_type i8_t [| i32_t |] in
   	let itoc_func = L.declare_function "int_to_char" itoc_t the_module in
 
 
