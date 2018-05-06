@@ -106,6 +106,11 @@ let translate (globals, functions, structs) =
   	let atoi_t = L.function_type i32_t [| p_t |] in
   	let atoi_func = L.declare_function "atoi" atoi_t the_module in
 
+  	(* Declare the built-in itoc() function *)
+  	let itoc_t = L.function_type i8_t [| i32_t_t |] in
+  	let itoc_func = L.declare_function "int_to_char" itoc_t the_module in
+
+
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   	let open_func = L.declare_function "open_file" open_t the_module in
@@ -431,6 +436,9 @@ let translate (globals, functions, structs) =
 					"printf" builder
 			| SCall("atoi", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call atoi_func (Array.of_list x) "atoi" builder
+            | SCall("itoc", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
+            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder
+            		
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in

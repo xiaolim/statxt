@@ -93,6 +93,7 @@ let check (globals, functions, structs) =
                                ("free", Int, [(String, "x")]);
                                ("putstr", Int, [(String, "x"); (String, "x")]);
                                ("atoi", Int, [(String, "x")]);
+                               ("itoc", Char, [(Int, "x")]);
                                ("isletter", Bool, [(Char, "x")]);
                                ("strappend", Char, [(String, "x"); (Int, "x"); (Char, "x")]);
                                ("moveptr", String, [(String, "x"); (Int, "y")]);
