@@ -82,6 +82,10 @@ char string_append(char* s, int index, char c ) {
   return c;
 }
 
+char int_to_char(int n){
+	return n;
+}
+
 char* ith_pointer(char* s, int ind) {
   return s+ind;
 }
