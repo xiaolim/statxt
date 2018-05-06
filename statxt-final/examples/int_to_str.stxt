@@ -1,0 +1,39 @@
+
+int mod(int num,int d){
+	return (num-((num/d)*d));
+}
+
+
+string int_to_str(int n){
+	int len;
+	len = 0;
+	int n_copy;
+	n_copy = n;
+	while(n_copy != 0){
+		n_copy = n_copy/10;
+		len = len+1;
+	}
+	string n_str;
+	n_str = calloc(len+1,1);
+	int i;
+	int digit;
+	for(i=0; i<len; i++) {
+		digit = mod(n,10);
+		
+		strappend(n_str, len-i-1, itoc(digit+48));
+		n = n/10;
+		
+	}
+	strappend(n_str, len, itoc(0));
+	return n_str;
+}
+
+
+int main() {
+	int c;
+	c = 2018;
+	string num_str;
+	num_str = int_to_str(c);
+	printstr(num_str);
+}
+
