@@ -1,5 +1,5 @@
-int main() {
-	
+int main()
+{
 
 /* test for putstr
 	string filename;
@@ -8,7 +8,7 @@ int main() {
 	fd = open(filename, "a");
 
 
-	string str1;
+	string str1;r
 	str1 = "Hakuna";
 	int size;
 	size = 1;

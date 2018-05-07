@@ -103,7 +103,7 @@ Check() {
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
     Run "$STATXT" "$1" ">" "${basename}.ll" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "cfunctions.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -186,10 +186,10 @@ LLIFail() {
 
 which "$LLI" >> $globallog || LLIFail
 
-if [ ! -f printbig.o ]
+if [ ! -f cfunctions.o ]
 then
-    echo "Could not find printbig.o"
-    echo "Try \"make printbig.o\""
+    echo "Could not find cfunctions.o"
+    echo "Try \"make cfunctions.o\""
     exit 1
 fi
 
