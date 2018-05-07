@@ -1,48 +1,56 @@
-/* This function prints the frequency of a given word in a sentence
-	args:
-		sentence -> string
-		world -> string
-	return:
-		int
+/* 
+This program reads a file and print the word and frequency of all word in the doc 
 */
 
-
-
-int	word_frequency(string line, string word) {
-	int count;
+int main() { 
+	string filename;
+	filename = "/home/dc3292/plt_project/statxt/Statxt/statxt-final/examples/sample_test.txt";
+	string fd;
+	fd = open(filename, "rb");
+	string read_doc;
+	read_doc = calloc(2048, 1);
+	int read_count;
+	read_count = read(read_doc, 1, 2048, fd);
+	printstr("no of character read: ");
+	print(read_count); 
+	printstr(" ");
+	printstr("frequency of eachword as follows:");
+	printstr(" ");
+	string[2048] word_arr;
+	word_arr = word_array(read_doc);
+	int arr_len;
+	arr_len = atoi(word_arr[0]);
 	
-	int l_len;
-	int w_len;
-	l_len = strlen(line);
-	w_len = strlen(word);
-	
-	char last_seen;
-	char l_curr_char;
-	char w_curr_char; 
-		
 	int i;
-	i = 0;
 	int j;
-	j = 0;
+	int count;
+	string curr_word;
 
-	while (i < s_len) {
-	l_curr_char = line[i];
-	w_curr_char;
-	if (l_curr_char 
+	for(i=1; i<arr_len; i++) {
+		curr_word = word_arr[i];
+		if (strget(curr_word,0) != itoc(0)){
+			count = 1;
+			for(j=i+1; j<=arr_len; j++){
+				if(is_str_equal(curr_word, word_arr[j])){
+					count = count + 1;
+					strappend(word_arr[j], 0, itoc(0));
+				}
+			}
+			printstr(curr_word);
+			print(count);
+			printstr(" ");
+			
+		}
 	
-
-	} 
-
-
-
-} 
-
-
-string[2048] word_array(string line) {
-	string[2048] words;
-	
-
+	}
+	int freed;
+	freed = free_array(word_arr);
+	if(freed==1){
+		printstr("array free success");
+	}
+	else {
+		printstr("array free fail");
+	}
 
 }
 
-string get first world 

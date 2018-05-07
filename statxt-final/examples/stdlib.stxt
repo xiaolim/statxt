@@ -83,6 +83,16 @@ string[2048] word_array(string line) {
 	return str_arr;
 }
 
+int free_array(string[2048] arr_str) {
+	int len;
+	len = atoi(arr_str[0]);
+	int i;
+	for(i=0; i<=len; i++){
+		free(arr_str[i]);
+	}
+	return 1;
+}
+
 int word_frequency(string line, string word) {
 	int count;
 	count = 0;
@@ -122,6 +132,8 @@ int word_count(string line){
 }
 
 
+/*
+
 int main() {
 	string line;
 	line = "how are are you doing?";
@@ -145,4 +157,4 @@ int main() {
 	printb('a'=='a');
 }
 
- 
+*/ 
