@@ -58,9 +58,13 @@ void print_books(struct books_info books) {
 	found =false;
 	for(i=0;i<count;i++){
 		if(books.valid_data[i]){
+			printstr("book name:");
 			printstr(books.name[i]);
+			printstr("book author:");
 			printstr(books.author[i]);
+			printstr("book abridged:");
 			printb(books.abridged[i]);
+			printstr("book pages:");
 			print(books.pages[i]);
 			printstr("------------ ");
 			found = true;
