@@ -38,6 +38,8 @@ let translate (globals, functions, structs) =
 	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
 
 	let make_struct_type sdecl =
+		(* this creates a LLVM struct type for EACH individual struct and adds to 
+		hashtable as key = name, value = struct type *)
 		let struct_t = L.named_struct_type context sdecl.ssname in
 		Hashtbl.add struct_type_table sdecl.ssname struct_t in 
 		let _  = List.map make_struct_type structs 
@@ -58,24 +60,29 @@ let translate (globals, functions, structs) =
 		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
 
-	(* Define structs and fill hashtable *)
+	(* Define struct body *)
 
 	let make_struct_body sdecl =
-		let struct_typ = try Hashtbl.find struct_type_table sdecl.ssname
+		let struct_typ : L.lltype = try Hashtbl.find struct_type_table sdecl.ssname
 			with Not_found -> raise(Failure("struct type not defined")) in
+		(* retrieve each struct member and its OCaml type *)
 		let smembers_types = List.map (fun (t, _) -> t) sdecl.smembers in
+		(* convert OCaml types into LLVM types and convert the list to an array *)
 		let smembers_lltypes = Array.of_list (List.map ltype_of_typ smembers_types) in
+		(* set the body of each named struct by passing through the members of the struct *)
 		L.struct_set_body struct_typ smembers_lltypes true
-	in  ignore(List.map make_struct_body structs);
+	in ignore(List.map make_struct_body structs); (* this section is how we know what types are in a struct for allocation *)
 
-	(* for dot ops to access members *)
+	(* Each struct member has an index, for Sretrieve to access members *)
 	let struct_element_index =
 		let handles m each_struct = 
+		(* get a list of member names for each struct*)
 		let struct_element_names = List.map (fun (_, n) -> n) each_struct.smembers in
 		let add_one n = n + 1 in
+		(* function that returns a tuple of (map, index) *)
 		let add_element_index (m, i) element_name =
 			(StringMap.add element_name (add_one i) m, add_one i) in
-		let struct_element_map = 
+		let struct_element_map (* map * index *) = 
 			List.fold_left add_element_index (StringMap.empty, -1) struct_element_names
 		in
 		StringMap.add each_struct.ssname (fst struct_element_map) m  
@@ -109,7 +116,6 @@ let translate (globals, functions, structs) =
   	(* Declare the built-in itoc() function *)
   	let itoc_t = L.function_type i8_t [| i32_t |] in
   	let itoc_func = L.declare_function "int_to_char" itoc_t the_module in
-
 
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
@@ -260,9 +266,11 @@ let translate (globals, functions, structs) =
 									let etype = fst( 
 										let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
 										let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
+										let g_vars = List.map (fun (t, n) -> (t, n)) globals in
 										try List.find (fun n -> snd(n) = s) fdecl_locals
 										with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-											with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+											with Not_found -> try List.find (fun n -> snd(n) = s) g_vars
+												with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 									in
 									(try match etype with
 										  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
@@ -438,7 +446,6 @@ let translate (globals, functions, structs) =
             	L.build_call atoi_func (Array.of_list x) "atoi" builder
             | SCall("itoc", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call itoc_func (Array.of_list x) "int_to_char" builder
-            		
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
