@@ -1,5 +1,8 @@
 /*
- *  A function illustrating how to link C code to code generated from LLVM 
+ * Darpan Choudhary || dc3292
+ * Xiao Lim || xl2669
+ * Zion Lin || zel2109
+ * Katherine Patton || kyp2106 
  */
 
 #include <stdio.h>

@@ -1,4 +1,11 @@
-/* Ocamlyacc parser for MicroC */
+/* 
+Darpan Choudhary || dc3292
+Xiao Lim || xl2669
+Zion Lin || zel2109
+Katherine Patton || kyp2106 
+*/
+
+/* Ocamlyacc parser for Statxt */
 
 %{
 open Ast

@@ -1,4 +1,11 @@
-(* Semantic checking for the MicroC compiler *)
+(*
+Darpan Choudhary || dc3292
+Xiao Lim || xl2669
+Zion Lin || zel2109
+Katherine Patton || kyp2106 
+*)
+
+(* Semantic checking for the Statxt compiler *)
 
 open Ast
 open Sast
