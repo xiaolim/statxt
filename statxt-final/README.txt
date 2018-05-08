@@ -63,7 +63,7 @@ word_frequency.stxt
 It prints the word frequency of each word in the file 
 
 book_record.stxt
-It stores grouped information about each book and prints this informaiton. 
+It stores grouped information about each book and prints this information. 
 
 
 
