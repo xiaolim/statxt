@@ -431,8 +431,7 @@ let translate (globals, functions, structs) =
 			| SCall("atoi", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call atoi_func (Array.of_list x) "atoi" builder
             | SCall("itoc", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder
-            		
+            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder            		
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
