@@ -42,6 +42,7 @@ bool is_str_equal(string s1, string s2){
 	return true; 
 }
 
+
 string[2048] word_array(string line) {
 	string[2048] str_arr;
 	int len_l;
