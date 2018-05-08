@@ -248,15 +248,15 @@ let translate (globals, functions, structs) =
 											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
 											let index_list = range 0 size in
 											List.iter (fun x ->
-												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp2" builder in
+												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp" builder in
 												let what = List.nth all_emements x in
 												ignore (L.build_store what where builder)
-											) index_list; L.build_load this_array "tmp3" builder
+											) index_list; L.build_load this_array "tmp" builder
 			| SArraccess(exp0, exp) ->
 				(match exp0 with
 					  (_, SId s) -> let array_llvalue = lookup s in
 							let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-							let array_load = L.build_load where "tmp2" builder in array_load
+							let array_load = L.build_load where "tmp" builder in array_load
 					| (_, SSretrieve (str, element)) -> (let s_llvalue = 
 							(match str with
 								  (_, SId s) ->
@@ -265,7 +265,7 @@ let translate (globals, functions, structs) =
 										let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 										try List.find (fun n -> snd(n) = s) fdecl_locals
 										with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-												with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+												with Not_found -> raise (Failure("Unable to find " ^ s )))
 									in
 									(try match etype with
 										  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
@@ -284,7 +284,7 @@ let translate (globals, functions, structs) =
 							let index = StringMap.find element indices in
 							let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
 							let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-							let array_load = L.build_load where "tmp2" builder in array_load)
+							let array_load = L.build_load where "tmp" builder in array_load)
 					| _ -> raise(Failure("not an array")))
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
@@ -298,7 +298,7 @@ let translate (globals, functions, structs) =
 																let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 																try List.find (fun n -> snd(n) = s) fdecl_locals
 																with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-																	with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+																	with Not_found -> raise (Failure("Unable to find " ^ s )))
 															in
 															(try match etype with
 																  A.Struct t->
@@ -323,7 +323,7 @@ let translate (globals, functions, structs) =
 																						let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 																						try List.find (fun n -> snd(n) = s) fdecl_locals
 																						with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-																							with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+																							with Not_found -> raise (Failure("Unable to find " ^ s )))
 																					in
 																					(try match etype with
 																						  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
@@ -357,7 +357,7 @@ let translate (globals, functions, structs) =
 							let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 							try List.find (fun n -> snd(n) = s) fdecl_locals
 							with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-								with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+								with Not_found -> raise (Failure("Unable to find " ^ s )))
 						in
 						(try match etype with
 							  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
