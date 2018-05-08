@@ -38,6 +38,8 @@ let translate (globals, functions, structs) =
 	let struct_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 8 in
 
 	let make_struct_type sdecl =
+		(* this creates a LLVM struct type for EACH individual struct and adds to 
+		hashtable as key = name, value = struct type *)
 		let struct_t = L.named_struct_type context sdecl.ssname in
 		Hashtbl.add struct_type_table sdecl.ssname struct_t in 
 		let _  = List.map make_struct_type structs 
@@ -58,24 +60,29 @@ let translate (globals, functions, structs) =
 		(*| t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet1"))*)
 	in
 
-	(* Define structs and fill hashtable *)
+	(* Define struct body *)
 
 	let make_struct_body sdecl =
-		let struct_typ = try Hashtbl.find struct_type_table sdecl.ssname
+		let struct_typ : L.lltype = try Hashtbl.find struct_type_table sdecl.ssname
 			with Not_found -> raise(Failure("struct type not defined")) in
+		(* retrieve each struct member and its OCaml type *)
 		let smembers_types = List.map (fun (t, _) -> t) sdecl.smembers in
+		(* convert OCaml types into LLVM types and convert the list to an array *)
 		let smembers_lltypes = Array.of_list (List.map ltype_of_typ smembers_types) in
+		(* set the body of each named struct by passing through the members of the struct *)
 		L.struct_set_body struct_typ smembers_lltypes true
-	in  ignore(List.map make_struct_body structs);
+	in ignore(List.map make_struct_body structs); (* this section is how we know what types are in a struct for allocation *)
 
-	(* for dot ops to access members *)
+	(* Each struct member has an index, for Sretrieve to access members *)
 	let struct_element_index =
 		let handles m each_struct = 
+		(* get a list of member names for each struct*)
 		let struct_element_names = List.map (fun (_, n) -> n) each_struct.smembers in
 		let add_one n = n + 1 in
+		(* function that returns a tuple of (map, index) *)
 		let add_element_index (m, i) element_name =
 			(StringMap.add element_name (add_one i) m, add_one i) in
-		let struct_element_map = 
+		let struct_element_map (* map * index *) = 
 			List.fold_left add_element_index (StringMap.empty, -1) struct_element_names
 		in
 		StringMap.add each_struct.ssname (fst struct_element_map) m  
@@ -92,7 +99,8 @@ let translate (globals, functions, structs) =
 					L.const_null (L.array_type (ltype_of_typ typ) size)
 				| A.String -> 
 					let l = L.define_global "" (L.const_stringz context n) the_module in
-					L.const_bitcast (L.const_gep l [|L.const_int i32_t 0|]) p_t 
+					L.const_bitcast (L.const_gep l [|L.const_int i32_t 0|]) p_t
+				| A.Struct _ -> raise(Failure("struct declaration in global not allowed"))
 				| _ -> L.const_int (ltype_of_typ t) 0
 			in StringMap.add n (L.define_global n init the_module) m in
 	List.fold_left global_var StringMap.empty globals in
@@ -109,7 +117,6 @@ let translate (globals, functions, structs) =
   	(* Declare the built-in itoc() function *)
   	let itoc_t = L.function_type i8_t [| i32_t |] in
   	let itoc_func = L.declare_function "int_to_char" itoc_t the_module in
-
 
 	(* Declare the built-in open() function *)
   	let open_t = L.function_type p_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in
@@ -162,10 +169,6 @@ let translate (globals, functions, structs) =
     (* Declare free() from heap *)
     let free_t = L.function_type i32_t [| p_t |] in 
     let free_func = L.declare_function "free" free_t the_module in
-
-    (* Declare print function *)
-	let printbig_t = L.function_type i32_t [| i32_t |] in
-	let printbig_func = L.declare_function "printbig" printbig_t the_module in
 
 	(* Declare isletter() function *)
 	let isvalid_t = L.function_type i1_t [| i8_t |] in
@@ -240,20 +243,20 @@ let translate (globals, functions, structs) =
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
 			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
-											let errthang = List.map (fun x -> expr builder x) sexprs in
+											let all_emements = List.map (fun x -> expr builder x) sexprs in
 											let this_array = L.build_alloca (L.array_type ltype_of_arr size) "tmp" builder in
 											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
 											let index_list = range 0 size in
 											List.iter (fun x ->
-												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp2" builder in
-												let what = List.nth errthang x in
+												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp" builder in
+												let what = List.nth all_emements x in
 												ignore (L.build_store what where builder)
-											) index_list; L.build_load this_array "tmp3" builder
+											) index_list; L.build_load this_array "tmp" builder
 			| SArraccess(exp0, exp) ->
 				(match exp0 with
 					  (_, SId s) -> let array_llvalue = lookup s in
-							let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-							let array_load = L.build_load something "tmp2" builder in array_load
+							let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+							let array_load = L.build_load where "tmp" builder in array_load
 					| (_, SSretrieve (str, element)) -> (let s_llvalue = 
 							(match str with
 								  (_, SId s) ->
@@ -262,7 +265,7 @@ let translate (globals, functions, structs) =
 										let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 										try List.find (fun n -> snd(n) = s) fdecl_locals
 										with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-											with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+												with Not_found -> raise (Failure("Unable to find " ^ s )))
 									in
 									(try match etype with
 										  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
@@ -270,18 +273,18 @@ let translate (globals, functions, structs) =
 									with Not_found -> raise (Failure(s ^ "not found")))
 								| _ -> raise (Failure("lhs not found")))
 							in
-							let built_e = expr builder str in
-							let built_e_lltype = L.type_of built_e in
-							let built_e_opt = L.struct_name built_e_lltype in
-							let built_e_name = (match built_e_opt with 
+							let the_element = expr builder str in
+							let the_element_lltype = L.type_of the_element in
+							let the_element_opt = L.struct_name the_element_lltype in
+							let the_element_name = (match the_element_opt with 
 													  None -> ""
 													| Some(s) -> s)
 							in 
-							let indices = StringMap.find built_e_name struct_element_index in
+							let indices = StringMap.find the_element_name struct_element_index in
 							let index = StringMap.find element indices in
 							let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
-							let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-							let array_load = L.build_load something "tmp2" builder in array_load)
+							let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+							let array_load = L.build_load where "tmp" builder in array_load)
 					| _ -> raise(Failure("not an array")))
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
@@ -295,7 +298,7 @@ let translate (globals, functions, structs) =
 																let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 																try List.find (fun n -> snd(n) = s) fdecl_locals
 																with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-																	with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+																	with Not_found -> raise (Failure("Unable to find " ^ s )))
 															in
 															(try match etype with
 																  A.Struct t->
@@ -310,8 +313,8 @@ let translate (globals, functions, structs) =
 												| (_, SArraccess (exp0, exp)) -> 
 																	(match exp0 with
 																	  (_, SId s) -> let array_llvalue = lookup s in
-																			let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-																			something
+																			let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																			where
 																	| (_, SSretrieve (str, element)) -> (let s_llvalue = 
 																			(match str with
 																				  (_, SId s) ->
@@ -320,7 +323,7 @@ let translate (globals, functions, structs) =
 																						let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 																						try List.find (fun n -> snd(n) = s) fdecl_locals
 																						with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-																							with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+																							with Not_found -> raise (Failure("Unable to find " ^ s )))
 																					in
 																					(try match etype with
 																						  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
@@ -328,18 +331,18 @@ let translate (globals, functions, structs) =
 																					with Not_found -> raise (Failure(s ^ "not found")))
 																				| _ -> raise (Failure("lhs not found")))
 																			in
-																			let built_e = expr builder str in
-																			let built_e_lltype = L.type_of built_e in
-																			let built_e_opt = L.struct_name built_e_lltype in
-																			let built_e_name = (match built_e_opt with 
+																			let the_element = expr builder str in
+																			let the_element_lltype = L.type_of the_element in
+																			let the_element_opt = L.struct_name the_element_lltype in
+																			let the_element_name = (match the_element_opt with 
 																									  None -> ""
 																									| Some(s) -> s)
 																			in 
-																			let indices = StringMap.find built_e_name struct_element_index in
+																			let indices = StringMap.find the_element_name struct_element_index in
 																			let index = StringMap.find element indices in
 																			let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
-																			let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-																			something)
+																			let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																			where)
 																	| _ -> raise(Failure("not an array")))
 												| _ -> raise (Failure "fudgesicles")
 											)
@@ -354,7 +357,7 @@ let translate (globals, functions, structs) =
 							let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
 							try List.find (fun n -> snd(n) = s) fdecl_locals
 							with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-								with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
+								with Not_found -> raise (Failure("Unable to find " ^ s )))
 						in
 						(try match etype with
 							  A.Struct _ -> let struct_llvalue = lookup s in struct_llvalue
@@ -362,14 +365,14 @@ let translate (globals, functions, structs) =
 						with Not_found -> raise (Failure(s ^ "not found")))
 					| _ -> raise (Failure("lhs not found")))
 				in
-				let built_e = expr builder str in
-				let built_e_lltype = L.type_of built_e in
-				let built_e_opt = L.struct_name built_e_lltype in
-				let built_e_name = (match built_e_opt with 
+				let the_element = expr builder str in
+				let the_element_lltype = L.type_of the_element in
+				let the_element_opt = L.struct_name the_element_lltype in
+				let the_element_name = (match the_element_opt with 
 										  None -> ""
 										| Some(s) -> s)
 				in 
-				let indices = StringMap.find built_e_name struct_element_index in
+				let indices = StringMap.find the_element_name struct_element_index in
 				let index = StringMap.find element indices in
 				let access_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
 					L.build_load access_llvalue "tmp" builder
@@ -428,17 +431,13 @@ let translate (globals, functions, structs) =
 			| SCall ("printchar", [e]) -> 
 				L.build_call printf_func [| char_format_str ; (expr builder e) |]
 					"printf" builder
-			| SCall ("printbig", [e]) ->
-				L.build_call printbig_func [| (expr builder e) |]
-					"printbig" builder
 			| SCall ("printf", [e]) -> 
 				L.build_call printf_func [| float_format_str ; (expr builder e) |]
 					"printf" builder
 			| SCall("atoi", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call atoi_func (Array.of_list x) "atoi" builder
             | SCall("itoc", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder
-            		
+            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder          		
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in

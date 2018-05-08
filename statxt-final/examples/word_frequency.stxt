@@ -1,8 +1,9 @@
 /* 
-This program reads a file and print the word and frequency of all word in the doc 
+This program reads a file and prints the word and frequencies of all words in the doc 
 */
 
-int main() { 
+int main()
+{ 
 	string filename;
 	filename = "/home/dc3292/plt_project/statxt/Statxt/statxt-final/examples/sample_test.txt";
 	string fd;
