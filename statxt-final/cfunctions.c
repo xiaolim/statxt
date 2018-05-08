@@ -71,7 +71,7 @@ int write_file(char* ptr, int size, int len, char* fd_s) {
   int i;
   
   i = fwrite(ptr, size, len, fd);
-  fprintf(stderr, "%d\n",i);
+  //fprintf(stderr, "%d\n",i);
   return i;
 }
 

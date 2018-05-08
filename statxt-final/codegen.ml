@@ -263,10 +263,8 @@ let translate (globals, functions, structs) =
 									let etype = fst( 
 										let fdecl_locals = List.map (fun (t, n) -> (t, n)) fdecl.slocals in
 										let fdecl_formals = List.map (fun (t, n) -> (t, n)) fdecl.sformals in
-										let g_vars = List.map (fun (t, n) -> (t, n)) globals in
 										try List.find (fun n -> snd(n) = s) fdecl_locals
 										with Not_found -> try List.find (fun n -> snd(n) = s) fdecl_formals
-											with Not_found -> try List.find (fun n -> snd(n) = s) g_vars
 												with Not_found -> raise (Failure("Unable to function_decls" ^ s )))
 									in
 									(try match etype with
