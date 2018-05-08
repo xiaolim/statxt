@@ -1,4 +1,11 @@
-(* Ocamllex scanner for MicroC *)
+(* 
+Darpan Choudhary || dc3292
+Xiao Lim || xl2669
+Zion Lin || zel2109
+Katherine Patton || kyp2106 
+*)
+
+(* Ocamllex scanner for Statxt *)
 
 { open Parser }
 

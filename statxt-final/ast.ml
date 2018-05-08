@@ -1,3 +1,10 @@
+(*
+Darpan Choudhary || dc3292
+Xiao Lim || xl2669
+Zion Lin || zel2109
+Katherine Patton || kyp2106 
+*)
+
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
