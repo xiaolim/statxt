@@ -86,9 +86,9 @@ void print_syllables_info(string filename){
 	printf(total_syllables / word_count_f);
 
 	printstr("");
-	printstr("FRES (reading ease score) is :");
 
 	if(sentence_c != 0) {
+		printstr("FRES (Flesch reading ease score) is :");
 		/*print(word_count);
 		printf(word_count_f);
 		print(sentence_c);
@@ -107,6 +107,9 @@ void print_syllables_info(string filename){
 		printf(FRES);
 
 		//print(207 - (word_count/sentence_c) - (85*(total_count/word_count)));
+
+		printstr("Fresch-Kicaid Grade Level Formula:");
+		printf(0.39*(word_count_f/sentence_count_f) + 11.8*(total_syllables/word_count_f) - 15.59);
 	}
 	else {
 		print(word_count);
