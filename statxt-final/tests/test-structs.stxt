@@ -1,12 +1,10 @@
-struct point
-{
+struct point{
 	int x;
 	int y;
 	int z;
 };
 
-struct pointf
-{
+struct pointf{
 	float x;
 	int y;
 	int z;
