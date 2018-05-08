@@ -1,0 +1,83 @@
+/* 
+This program reads a file and print the no. of syllables of each word and avg syllables 
+*/
+
+bool is_vowel(char c){
+	if( c=='a' || c=='e' || c=='i' || c=='o' || c=='u' || c=='y'){
+		return true;
+	}
+	return false;
+}
+
+void print_syllables_info(string filename) { 
+	string fd;
+	fd = open(filename, "rb");
+	string read_doc;
+	read_doc = calloc(2048, 1);
+	int read_count;
+	read_count = read(read_doc, 1, 2048, fd);
+	
+	printstr("syllables of each word as follows:");
+	printstr(" ");
+	string[2048] word_arr;
+	word_arr = word_array(read_doc);
+	int arr_len;
+	arr_len = atoi(word_arr[0]);
+	int i;
+	int j;
+	int count;
+	int word_count;
+	word_count = 0;
+	int total_count;
+	total_count = 0;
+	string curr_word;
+	int word_len;
+	word_len =0;
+	int last_i;	
+
+	for(i=1; i<=arr_len; i++) {
+		curr_word = lower(word_arr[i]);
+		word_len =strlen(curr_word);
+		count =0;
+		last_i = -2;
+		for(j=0; j<word_len; j++){
+			if(is_vowel(strget(curr_word,j))){
+				if(last_i!=j-1){
+					count = count + 1;
+					total_count++;
+				}
+				last_i=j;
+			}
+				
+		}
+		word_count++;
+		printstr(curr_word);
+		if (count==0){
+			print(1);
+		}
+		else {
+			print(count);
+		}
+		printstr(" ");
+		free(curr_word);
+	}
+	printstr("avg syllables");
+	print(total_count/word_count);
+	int freed;
+	freed = free_array(word_arr);
+	if(freed==1){
+		printstr("array free success");
+	}
+	else {
+		printstr("array free fail");
+	}
+
+}
+
+int main() {
+
+	string filename;
+	filename = "/home/dc3292/plt_project/statxt/Statxt/statxt-final/examples/sample_test.txt";
+	printb(is_vowel(strget(filename,2)));
+	print_syllables_info(filename);
+}
