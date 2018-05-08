@@ -18,38 +18,37 @@ Statxt is a language which specializes in analyzing textual statistics.
 
 To compile the compiler:
 type 
+$ make clean
 $ make 
 
 To execute the compiler: 
-To run all our test scripts simply type:
-$ ./testall.sh 
+To run all our test script on files test-*.stxt and fail-*.stxt in tests/
+that do NOT require stdlib functions simply type:
+$ ./testall.sh
 
-To run a specific program.stxt type:
+To run all our test script on files test-*.stxt and fail-*.stxt in stdlibstests/
+that do require stdlib functions simply type:
+$ ./stdlibtestall.sh 
+
+To run a specific program.stxt (this will copy in the stdlib functions)
+contained in stdlib.stxt) type:
 $ ./statxt.sh program.stxt 
+
+Manual compilation and execution of program.stxt can be achieve via the
+following steps that do NOT include copying in stdlib functions:
+$ ./statxt.native mystatxtcode.stxt > mystatxtcode.ll
+$ llc mystatxtcode.ll > mystatxtcode.s
+$ cc -o mystatxtcode.exe mystatxtcode.s cfunctions.o
+$ ./mystatxtcode.exe
 
 
 
 This folder contains a lot of code which consists of three groups: 
-1. The compiler code (toplevel)
+1. The compiler code and stdlib.stxt (toplevel)
 2. The compiler feature tests (QA for our features; /tests) 
 3. The demo code (/examples)
 
-
-
 Section 1:
-All files necessary for compilation are included in the root of the Statxt
-folder.  Statxt can be compiled by simply running "make":
-useage:
-	make
-
-Compilation of mystatxtcode.stxt can be achieve via the following steps or through the
-process descriped in Section 2 or 3 below with the provided shell scripts:
-usage:
-	./statxt.native mystatxtcode.stxt > mystatxtcode.ll
-	llc mystatxtcode.ll > mystatxtcode.s
-	cc -o mystatxtcode.exe mystatxtcode.s cfunctions.o
-	./mystatxtcode.exe
-
 Files included: 
 scanner.mll
 parser.mly
@@ -107,8 +106,3 @@ It prints the word frequency of each word in the sample text at
 book_record.stxt
 It stores grouped information about each book in a struct
 and prints this information. 
-
-
-
-
-		
