@@ -20,5 +20,5 @@ basename=`echo $1 | sed 's/.*\\///
 
 Run "$STATXT" "$1" ">" "${basename}.ll" &&
 Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
+Run "$CC" "-o" "${basename}.exe" "${basename}.s" "cfunctions.o" &&
 Run "./${basename}.exe"

@@ -99,7 +99,8 @@ let translate (globals, functions, structs) =
 					L.const_null (L.array_type (ltype_of_typ typ) size)
 				| A.String -> 
 					let l = L.define_global "" (L.const_stringz context n) the_module in
-					L.const_bitcast (L.const_gep l [|L.const_int i32_t 0|]) p_t 
+					L.const_bitcast (L.const_gep l [|L.const_int i32_t 0|]) p_t
+				| A.Struct _ -> raise(Failure("struct declaration in global not allowed"))
 				| _ -> L.const_int (ltype_of_typ t) 0
 			in StringMap.add n (L.define_global n init the_module) m in
 	List.fold_left global_var StringMap.empty globals in
@@ -168,10 +169,6 @@ let translate (globals, functions, structs) =
     (* Declare free() from heap *)
     let free_t = L.function_type i32_t [| p_t |] in 
     let free_func = L.declare_function "free" free_t the_module in
-
-    (* Declare print function *)
-	let printbig_t = L.function_type i32_t [| i32_t |] in
-	let printbig_func = L.declare_function "printbig" printbig_t the_module in
 
 	(* Declare isletter() function *)
 	let isvalid_t = L.function_type i1_t [| i8_t |] in
@@ -436,16 +433,13 @@ let translate (globals, functions, structs) =
 			| SCall ("printchar", [e]) -> 
 				L.build_call printf_func [| char_format_str ; (expr builder e) |]
 					"printf" builder
-			| SCall ("printbig", [e]) ->
-				L.build_call printbig_func [| (expr builder e) |]
-					"printbig" builder
 			| SCall ("printf", [e]) -> 
 				L.build_call printf_func [| float_format_str ; (expr builder e) |]
 					"printf" builder
 			| SCall("atoi", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call atoi_func (Array.of_list x) "atoi" builder
             | SCall("itoc", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
-            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder
+            	L.build_call itoc_func (Array.of_list x) "int_to_char" builder          		
 			| SCall("open", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
             	L.build_call open_func (Array.of_list x) "open_file" builder
       	 	| SCall("close", e) -> let x = List.rev (List.map (expr builder) (List.rev e)) in
