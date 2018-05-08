@@ -36,6 +36,15 @@ void print_syllables_info(string filename) {
 	int last_i;	
 	int sentence_c;
 	sentence_c = 0;
+	char punc;
+	int k;
+
+	for(k=0;k<strlen(read_doc);k++){
+		punc = strget(read_doc,k);
+		if(punc == '.' || punc == '?' || punc == '!'){
+			sentence_c = sentence_c + 1;
+		}
+	}
 
 	for(i=1; i<=arr_len; i++) {
 		curr_word = lower(word_arr[i]);
@@ -43,9 +52,6 @@ void print_syllables_info(string filename) {
 		count =0;
 		last_i = -2;
 		for(j=0; j<word_len; j++){
-			if(strget(curr_word,j)=='.'){
-				sentence_c = sentence_c + 1;
-			}
 			if(is_vowel(strget(curr_word,j))){
 				if(last_i!=j-1){
 					count = count + 1;
@@ -69,9 +75,9 @@ void print_syllables_info(string filename) {
 	printstr("avg syllables");
 	print(total_count/word_count);
 	printstr(" ");
-	printstr("reading level is :");
+	printstr("FRES (reading ease score) is :");
 	if(sentence_c != 0) {
-		print(word_count/sentence_c);
+		print(207 - (word_count/sentence_c) - (85*(total_count/word_count)));
 	}
 	else {
 		print(word_count);
@@ -87,7 +93,7 @@ void print_syllables_info(string filename) {
 int main() {
 
 	string filename;
-	filename = "/home/dc3292/plt_project/statxt/Statxt/statxt-final/examples/sample_test.txt";
+	filename = "./examples/sample_test.txt";
 	printb(is_vowel(strget(filename,2)));
 	print_syllables_info(filename);
 }
