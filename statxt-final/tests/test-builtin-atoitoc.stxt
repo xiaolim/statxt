@@ -1,20 +1,13 @@
 int main()
 {
-	string s;
-	s = "The quick brown fox jumps over the lazy dog";
 	char c;
+	
+	c = itoc(104);
+	printchar(c);
 
 	int i;
-
-	i = atoi(s);
+	i = atoi("678");
 	print(i);
-	
-	c = itoc(4);
-	printchar(c2);
-
-	char c2;
-	c2 = itoc(i);
-	printchar(c2);
 
 
 	return 0;
