@@ -1,3 +1,9 @@
+(*
+Darpan Choudhary || dc3292
+Xiao Lim || xl2669
+Zion Lin || zel2109
+Katherine Patton || kyp2106 
+*)
 (* Top-level of the Statxt compiler: scan & parse the input,
    check the resulting AST and generate an SAST from it, generate LLVM IR,
    and dump the module *)

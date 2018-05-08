@@ -5,7 +5,7 @@ This program reads a file and prints the word and frequencies of all words in th
 int main()
 { 
 	string filename;
-	filename = "/home/dc3292/plt_project/statxt/Statxt/statxt-final/examples/sample_test.txt";
+	filename = "./examples/sample_test.txt";
 	string fd;
 	fd = open(filename, "rb");
 	string read_doc;
