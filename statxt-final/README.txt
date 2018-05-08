@@ -56,7 +56,14 @@ book_record.stxt
 
 
 More about the demo code: 
-syllables.stxt 
+syllables.stxt
+This file print an estimate of the number of syllables of each word in the file and the average number of syllables 
+
+word_frequency.stxt
+It prints the word frequency of each word in the file 
+
+book_record.stxt
+It stores grouped information about each book and prints this informaiton. 
 
 
 
