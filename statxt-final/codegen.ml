@@ -243,20 +243,20 @@ let translate (globals, functions, structs) =
 			| SStrlit s -> L.build_global_stringptr s "tmp" builder
 			| SCharlit c -> L.const_int i8_t (Char.code c)
 			| SArraylit (sexprs, size)-> 	let ltype_of_arr = ltype_of_typ (fst(List.hd sexprs)) in
-											let errthang = List.map (fun x -> expr builder x) sexprs in
+											let all_emements = List.map (fun x -> expr builder x) sexprs in
 											let this_array = L.build_alloca (L.array_type ltype_of_arr size) "tmp" builder in
 											let rec range i j = if i >= j then [] else i :: (range (i+1) j) in
 											let index_list = range 0 size in
 											List.iter (fun x ->
 												let where = L.build_in_bounds_gep this_array [| L.const_int i32_t 0; L.const_int i32_t x |] "tmp2" builder in
-												let what = List.nth errthang x in
+												let what = List.nth all_emements x in
 												ignore (L.build_store what where builder)
 											) index_list; L.build_load this_array "tmp3" builder
 			| SArraccess(exp0, exp) ->
 				(match exp0 with
 					  (_, SId s) -> let array_llvalue = lookup s in
-							let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-							let array_load = L.build_load something "tmp2" builder in array_load
+							let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+							let array_load = L.build_load where "tmp2" builder in array_load
 					| (_, SSretrieve (str, element)) -> (let s_llvalue = 
 							(match str with
 								  (_, SId s) ->
@@ -273,18 +273,18 @@ let translate (globals, functions, structs) =
 									with Not_found -> raise (Failure(s ^ "not found")))
 								| _ -> raise (Failure("lhs not found")))
 							in
-							let built_e = expr builder str in
-							let built_e_lltype = L.type_of built_e in
-							let built_e_opt = L.struct_name built_e_lltype in
-							let built_e_name = (match built_e_opt with 
+							let the_element = expr builder str in
+							let the_element_lltype = L.type_of the_element in
+							let the_element_opt = L.struct_name the_element_lltype in
+							let the_element_name = (match the_element_opt with 
 													  None -> ""
 													| Some(s) -> s)
 							in 
-							let indices = StringMap.find built_e_name struct_element_index in
+							let indices = StringMap.find the_element_name struct_element_index in
 							let index = StringMap.find element indices in
 							let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
-							let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-							let array_load = L.build_load something "tmp2" builder in array_load)
+							let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+							let array_load = L.build_load where "tmp2" builder in array_load)
 					| _ -> raise(Failure("not an array")))
 			| SNoexpr -> L.const_int i32_t 0
 			| SId s -> L.build_load (lookup s) s builder
@@ -313,8 +313,8 @@ let translate (globals, functions, structs) =
 												| (_, SArraccess (exp0, exp)) -> 
 																	(match exp0 with
 																	  (_, SId s) -> let array_llvalue = lookup s in
-																			let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-																			something
+																			let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																			where
 																	| (_, SSretrieve (str, element)) -> (let s_llvalue = 
 																			(match str with
 																				  (_, SId s) ->
@@ -331,18 +331,18 @@ let translate (globals, functions, structs) =
 																					with Not_found -> raise (Failure(s ^ "not found")))
 																				| _ -> raise (Failure("lhs not found")))
 																			in
-																			let built_e = expr builder str in
-																			let built_e_lltype = L.type_of built_e in
-																			let built_e_opt = L.struct_name built_e_lltype in
-																			let built_e_name = (match built_e_opt with 
+																			let the_element = expr builder str in
+																			let the_element_lltype = L.type_of the_element in
+																			let the_element_opt = L.struct_name the_element_lltype in
+																			let the_element_name = (match the_element_opt with 
 																									  None -> ""
 																									| Some(s) -> s)
 																			in 
-																			let indices = StringMap.find built_e_name struct_element_index in
+																			let indices = StringMap.find the_element_name struct_element_index in
 																			let index = StringMap.find element indices in
 																			let array_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
-																			let something = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
-																			something)
+																			let where = L.build_in_bounds_gep array_llvalue [| L.const_int i32_t 0;(expr builder exp) |] "tmp" builder in
+																			where)
 																	| _ -> raise(Failure("not an array")))
 												| _ -> raise (Failure "fudgesicles")
 											)
@@ -365,14 +365,14 @@ let translate (globals, functions, structs) =
 						with Not_found -> raise (Failure(s ^ "not found")))
 					| _ -> raise (Failure("lhs not found")))
 				in
-				let built_e = expr builder str in
-				let built_e_lltype = L.type_of built_e in
-				let built_e_opt = L.struct_name built_e_lltype in
-				let built_e_name = (match built_e_opt with 
+				let the_element = expr builder str in
+				let the_element_lltype = L.type_of the_element in
+				let the_element_opt = L.struct_name the_element_lltype in
+				let the_element_name = (match the_element_opt with 
 										  None -> ""
 										| Some(s) -> s)
 				in 
-				let indices = StringMap.find built_e_name struct_element_index in
+				let indices = StringMap.find the_element_name struct_element_index in
 				let index = StringMap.find element indices in
 				let access_llvalue = L.build_struct_gep s_llvalue index "tmp" builder in
 					L.build_load access_llvalue "tmp" builder
