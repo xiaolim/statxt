@@ -7,6 +7,7 @@
 #  Compile and check the error of each expected-to-fail test
 #
 # Modified by Statxt team for use with Statxt
+#this version specifically copies all stdlib functions into each test file before running
 
 # Path to the LLVM interpreter
 LLI="lli"
@@ -102,8 +103,12 @@ Check() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "$STATXT" "$1" ">" "${basename}.ll" &&
+    touch "${basename}stdlib.stxt"
+    cat stdlib.stxt > "${basename}stdlib.stxt"
+    cat $1 >> "${basename}stdlib.stxt"
+
+    generatedfiles="$generatedfiles ${basename}stdlib.stxt ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
+    Run "$STATXT" "${basename}stdlib.stxt" ">" "${basename}.ll" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
     Run "$CC" "-o" "${basename}.exe" "${basename}.s" "cfunctions.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
@@ -148,8 +153,12 @@ CheckFail() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.err ${basename}.diff" &&
-    RunFail "$STATXT" "<" $1 "2>" "${basename}.err" ">>" $globallog &&
+    touch "${basename}stdlib.stxt"
+    cat stdlib.stxt > "${basename}stdlib.stxt"
+    cat $1 >> "${basename}stdlib.stxt"
+
+    generatedfiles="$generatedfiles ${basename}stdlib.stxt ${basename}.err ${basename}.diff" &&
+    RunFail "$STATXT" "<" "${basename}stdlib.stxt" "2>" "${basename}.err" ">>" $globallog &&
     Compare ${basename}.err ${reffile}.err ${basename}.diff
 
     # Report the status and clean up the generated files
@@ -199,7 +208,7 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test-*.stxt tests/fail-*.stxt"
+    files="stdlibtests/test-*.stxt stdlibtests/fail-*.stxt"
 fi
 
 for file in $files

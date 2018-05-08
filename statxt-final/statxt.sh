@@ -18,7 +18,11 @@ Run() {
 basename=`echo $1 | sed 's/.*\\///
                          s/.stxt//'`
 
-Run "$STATXT" "$1" ">" "${basename}.ll" &&
-Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-Run "$CC" "-o" "${basename}.exe" "${basename}.s" "cfunctions.o" &&
-Run "./${basename}.exe"
+touch temp.stxt
+cat stdlib.stxt > temp.stxt
+cat $1 >> temp.stxt
+
+Run "$STATXT" "temp.stxt" ">" "temp.ll" &&
+Run "$LLC" "temp.ll" ">" "temp.s" &&
+Run "$CC" "-o" "temp.exe" "temp.s" "cfunctions.o" &&
+Run "./temp.exe"

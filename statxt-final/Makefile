@@ -20,7 +20,7 @@ clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff statxt scanner.ml parser.ml parser.mli
 	rm -rf cfunctions
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe test-*.stxt fail-*.stxt temp.stxt
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
