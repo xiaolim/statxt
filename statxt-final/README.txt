@@ -15,10 +15,23 @@ Welcome to Statxt. This is the result of a long semester's work on our langage S
 Statxt is a language which specializes in analyzing textual statistics. 
 
 
-This file contains a lot of code which consists of three groups: 
-1. The compiler code
-2. The compiler feature tests (QA for our features) 
-3. The demo code
+To compile the compiler:
+type 
+$ make 
+
+To execute the compiler: 
+To run all our test scripts simply type:
+$ ./testall.sh 
+
+To run a specific program.stxt type:
+$ ./statxt.sh program.stxt 
+
+
+
+This folder contains a lot of code which consists of three groups: 
+1. The compiler code (toplevel)
+2. The compiler feature tests (QA for our features; /tests) 
+3. The demo code (/examples)
 
 
 
