@@ -34,6 +34,8 @@ void print_syllables_info(string filename) {
 	int word_len;
 	word_len =0;
 	int last_i;	
+	int sentence_c;
+	sentence_c = 0;
 
 	for(i=1; i<=arr_len; i++) {
 		curr_word = lower(word_arr[i]);
@@ -41,6 +43,9 @@ void print_syllables_info(string filename) {
 		count =0;
 		last_i = -2;
 		for(j=0; j<word_len; j++){
+			if(strget(curr_word,j)=='.'){
+				sentence_c = sentence_c + 1;
+			}
 			if(is_vowel(strget(curr_word,j))){
 				if(last_i!=j-1){
 					count = count + 1;
@@ -63,12 +68,17 @@ void print_syllables_info(string filename) {
 	}
 	printstr("avg syllables");
 	print(total_count/word_count);
-	int freed;
-	freed = free_array(word_arr);
-	if(freed==1){
-		printstr("array free success");
+	printstr(" ");
+	printstr("reading level is :");
+	if(sentence_c != 0) {
+		print(word_count/sentence_c);
 	}
 	else {
+		print(word_count);
+	}
+	int freed;
+	freed = free_array(word_arr);
+	if(freed!=1){
 		printstr("array free fail");
 	}
 
